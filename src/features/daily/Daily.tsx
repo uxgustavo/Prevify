@@ -60,8 +60,10 @@ export function Daily() {
     <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-0 relative overflow-visible lg:overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
        <MainHeader />
 
-       {/* Header Row */}
-       <div className="grid grid-cols-[48px_1fr_130px] border-b border-gray-100 dark:border-gray-800/60 py-4 sticky top-[80px] bg-white dark:bg-[#141D23] w-full z-10 shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-colors">
+       <div 
+           className="grid grid-cols-[48px_1fr_130px] border-b border-gray-100 dark:border-gray-800/60 py-4 sticky bg-white dark:bg-[#141D23] w-full z-10 shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-colors"
+           style={{ top: 'calc(67px + env(safe-area-inset-top, 0px))' }}
+        >
           <div className="flex items-center justify-center">
              <span className="text-[14px] font-semibold text-gray-500 dark:text-gray-400">Dia</span>
           </div>
@@ -82,7 +84,7 @@ export function Daily() {
        </div>
 
        {/* List Rows */}
-       <div className="flex flex-col w-full bg-white dark:bg-[#141D23] transition-colors pb-32">
+       <div className="flex flex-col w-full bg-white dark:bg-[#141D23] transition-colors">
           {daysData.map((d) => (
               <div 
                  key={d.day} 
