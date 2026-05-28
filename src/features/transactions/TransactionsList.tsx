@@ -19,7 +19,7 @@ export function TransactionsList() {
   return (
     <div className="flex flex-col min-h-full bg-[#f6f9fc] dark:bg-[#141D23] pb-12 transition-colors text-gray-900 dark:text-gray-100">
        {/* Header */}
-       <div className="flex items-center justify-between px-5 pt-12 pb-4 bg-[#f6f9fc] dark:bg-[#141D23] sticky top-0 z-20 transition-colors">
+       <div className="flex items-center justify-between px-5 pt-safe-header pb-4 bg-[#f6f9fc] dark:bg-[#141D23] sticky top-0 z-20 transition-colors">
           <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-[#46536A] dark:text-[#A5B4FC]"><ArrowLeft className="w-[22px] h-[22px]" strokeWidth={2} /></button>
           
           <div className="flex items-center gap-4">

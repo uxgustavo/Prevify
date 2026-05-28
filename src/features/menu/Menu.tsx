@@ -111,11 +111,11 @@ export function Menu() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-0 relative overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
+    <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-0 relative overflow-visible lg:overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
       
       {/* Dynamic Header */}
       <div 
-        className="px-5 pt-12 pb-5 border-b border-gray-100 dark:border-gray-800/60 bg-white dark:bg-[#141D23] sticky top-0 z-20 flex items-center justify-between"
+        className="px-5 pt-safe-header pb-5 border-b border-gray-100 dark:border-gray-800/60 bg-white dark:bg-[#141D23] sticky top-0 z-20 flex items-center justify-between"
         style={{ borderRadius: 0 }}
       >
         <div>

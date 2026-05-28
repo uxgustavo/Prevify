@@ -42,7 +42,7 @@ export function Horizon() {
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#141D23] relative transition-colors text-gray-900 dark:text-gray-100">
        {/* Header */}
-       <div className="flex items-center justify-between px-5 pt-12 pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800/80 font-sans transition-colors">
+       <div className="flex items-center justify-between px-5 pt-safe-header pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800/80 font-sans transition-colors">
           <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-gray-800 dark:text-gray-200">
             <ArrowLeft className="w-6 h-6" />
           </button>

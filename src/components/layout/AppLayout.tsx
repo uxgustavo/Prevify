@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BottomNav } from './BottomNav';
 import { AddTransactionModal } from '../../features/transactions/AddTransactionModal';
 import { TransactionTypeModal } from '../../features/transactions/TransactionTypeModal';
@@ -14,6 +14,13 @@ export function AppLayout() {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [location.pathname]);
 
   const handleSelectType = (type: TransactionType) => {
     setSelectedType(type);
@@ -72,7 +79,7 @@ export function AppLayout() {
       </aside>
 
       {/* Main Content Viewport */}
-      <div className="flex-grow flex flex-col h-full overflow-y-auto no-scrollbar relative w-full">
+      <div ref={scrollRef} className="flex-grow flex flex-col h-full overflow-y-auto no-scrollbar relative w-full">
         <main className="flex-1 w-full lg:max-w-6xl mx-auto py-0 lg:py-8 px-0 lg:px-6 min-h-full pb-24 lg:pb-8">
           <Outlet />
         </main>

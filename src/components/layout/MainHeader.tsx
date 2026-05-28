@@ -22,7 +22,7 @@ export function MainHeader() {
 
   return (
     <div 
-      className="flex items-center justify-between px-5 pt-12 pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-20 border-b border-gray-50 dark:border-gray-800/40 transition-colors"
+      className="flex items-center justify-between px-5 pt-safe-header pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-20 border-b border-gray-50 dark:border-gray-800/40 transition-colors"
       style={{ borderRadius: 0 }}
     >
       <div className="flex items-center gap-1 bg-white dark:bg-[#1C262E] border border-gray-200 dark:border-gray-800 shadow-sm rounded-xl px-2 py-1.5 pt-1 flex-col select-none">

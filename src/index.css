@@ -32,5 +32,11 @@
   .no-scrollbar {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    -webkit-overflow-scrolling: touch;
   }
 }
+
+@utility pt-safe-header {
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+}
+

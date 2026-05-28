@@ -53,7 +53,7 @@ export function Savings() {
     <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-24 text-gray-900 dark:text-gray-100 transition-colors">
       
       {/* Header aligned perfectly with clean layout */}
-      <div className="flex items-center gap-3.5 px-5 pt-12 pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-10 transition-colors">
+      <div className="flex items-center gap-3.5 px-5 pt-safe-header pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-10 transition-colors">
         <button 
           onClick={() => navigate(-1)} 
           className="p-1 -ml-1 text-[#46536A] dark:text-[#A5B4FC] hover:scale-105 active:scale-95 transition-all cursor-pointer"

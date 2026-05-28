@@ -216,7 +216,7 @@ export function DayTransactions() {
   return (
     <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-24 text-gray-900 dark:text-gray-100 transition-colors">
        {/* Header */}
-       <div className="flex items-center justify-between px-5 pt-12 pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-20 transition-colors">
+       <div className="flex items-center justify-between px-5 pt-safe-header pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-20 transition-colors">
           <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-gray-800 dark:text-gray-200"><ArrowLeft className="w-5 h-5" /></button>
           
           <div className="flex items-center gap-4">
