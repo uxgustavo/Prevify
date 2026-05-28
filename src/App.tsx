@@ -9,7 +9,7 @@ import { DayTransactions } from './features/daily/DayTransactions';
 import { Savings } from './features/savings/Savings';
 import { Tags } from './features/tags/Tags';
 import { TransactionProvider } from './context/TransactionContext';
-import { useFinanceStore } from './store/useFinanceStore';
+import { useFinanceStore, checkInitialAuth } from './store/useFinanceStore';
 import { Menu } from './features/menu/Menu';
 import { AuthPage } from './features/auth/AuthPage';
 
@@ -67,6 +67,39 @@ export default function App() {
   const darkMode = useFinanceStore((state) => state.darkMode);
   const primaryColor = useFinanceStore((state) => state.primaryColor);
   const isLoggedIn = useFinanceStore((state) => state.isLoggedIn);
+  const logoutUser = useFinanceStore((state) => state.logoutUser);
+
+  // Monitor activity and handle session timeout
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const updateSessionExpiry = () => {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sessionExpiry', String(Date.now() + 2 * 60 * 60 * 1000));
+      }
+    };
+
+    // Update expiry initially on activity setup
+    updateSessionExpiry();
+
+    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    activityEvents.forEach((event) => {
+      window.addEventListener(event, updateSessionExpiry);
+    });
+
+    const checkInterval = setInterval(() => {
+      if (!checkInitialAuth()) {
+        logoutUser();
+      }
+    }, 10000); // Check every 10 seconds
+
+    return () => {
+      activityEvents.forEach((event) => {
+        window.removeEventListener(event, updateSessionExpiry);
+      });
+      clearInterval(checkInterval);
+    };
+  }, [isLoggedIn, logoutUser]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

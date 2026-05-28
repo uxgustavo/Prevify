@@ -60,7 +60,7 @@ export async function loadUserDataFromSupabase(email: string) {
       .from('user_balances')
       .select('balance')
       .eq('user_email', cleanEmail)
-      .single();
+      .maybeSingle();
       
     // 2. Fetch transactions
     const { data: txsData } = await supabase

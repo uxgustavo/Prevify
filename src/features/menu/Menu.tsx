@@ -341,7 +341,7 @@ export function Menu() {
         <div className="text-center pt-8">
           <div className="inline-flex items-center gap-1.5 text-gray-400 dark:text-gray-550 text-xs">
             <Info className="w-3.5 h-3.5" />
-            <span>Fluxo de Caixa Premium v1.3.0</span>
+            <span>Prevify - Inteligência em previsibilidade financeira</span>
           </div>
         </div>
       </div>

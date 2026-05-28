@@ -53,9 +53,29 @@ const ensureInitialUsers = () => {
 };
 ensureInitialUsers();
 
+export const checkInitialAuth = (): boolean => {
+  if (typeof window !== 'undefined') {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const sessionExpiryStr = localStorage.getItem('sessionExpiry');
+    if (isLoggedIn && sessionExpiryStr) {
+      const expiry = parseInt(sessionExpiryStr, 10);
+      if (!isNaN(expiry) && Date.now() < expiry) {
+        return true;
+      }
+    }
+    // Clean up if expired or invalid
+    if (isLoggedIn || sessionExpiryStr) {
+      localStorage.setItem('isLoggedIn', 'false');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('sessionExpiry');
+    }
+  }
+  return false;
+};
+
 const getInitialUser = () => {
   if (typeof window !== 'undefined') {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') !== 'false';
+    const isLoggedIn = checkInitialAuth();
     const currentUserStr = localStorage.getItem('currentUser');
     if (isLoggedIn && currentUserStr) {
       try {
@@ -65,7 +85,7 @@ const getInitialUser = () => {
       }
     }
   }
-  return { name: 'Gustavo', email: 'Gustavo.HVSS@gmail.com' };
+  return { name: '', email: '' };
 };
 
 const getInitialTransactions = (email: string): Transaction[] => {
@@ -122,13 +142,13 @@ const saveUserData = (email: string, transactions: Transaction[], balance: numbe
 const initialUser = getInitialUser();
 
 export const useFinanceStore = create<FinanceState>((set) => ({
-  transactions: getInitialTransactions(initialUser.email),
-  currentBalance: getInitialBalance(initialUser.email),
+  transactions: initialUser.email ? getInitialTransactions(initialUser.email) : [],
+  currentBalance: initialUser.email ? getInitialBalance(initialUser.email) : 0,
   selectedDate: new Date(),
-  customTags: getInitialCustomTags(initialUser.email),
+  customTags: initialUser.email ? getInitialCustomTags(initialUser.email) : [],
   darkMode: typeof window !== 'undefined' ? localStorage.getItem('theme') === 'dark' : false,
   primaryColor: typeof window !== 'undefined' ? (localStorage.getItem('primaryColor') || 'violet') : 'violet',
-  isLoggedIn: typeof window !== 'undefined' ? (localStorage.getItem('isLoggedIn') !== 'false') : true,
+  isLoggedIn: checkInitialAuth(),
   currentUser: initialUser,
   toggleDarkMode: () => set((state) => {
     const nextDark = !state.darkMode;
@@ -360,6 +380,7 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     }
     const update = { name: user.name, email: user.email };
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('sessionExpiry', String(Date.now() + 2 * 60 * 60 * 1000)); // 2h expiry
     localStorage.setItem('currentUser', JSON.stringify(update));
     localStorage.setItem('profileName', user.name);
     localStorage.setItem('profileEmail', user.email);
@@ -417,6 +438,7 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     
     const update = { name, email };
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('sessionExpiry', String(Date.now() + 2 * 60 * 60 * 1000)); // 2h expiry
     localStorage.setItem('currentUser', JSON.stringify(update));
     localStorage.setItem('profileName', name);
     localStorage.setItem('profileEmail', email);
@@ -494,6 +516,8 @@ export const useFinanceStore = create<FinanceState>((set) => ({
   },
   logoutUser: () => {
     localStorage.setItem('isLoggedIn', 'false');
+    localStorage.removeItem('sessionExpiry');
+    localStorage.removeItem('currentUser');
     set({ 
       isLoggedIn: false, 
       currentUser: { name: '', email: '' },
@@ -505,7 +529,7 @@ export const useFinanceStore = create<FinanceState>((set) => ({
 }));
 
 // Initial background synchronization on startup
-if (typeof window !== 'undefined' && initialUser && initialUser.email && isSupabaseConfigured()) {
+if (typeof window !== 'undefined' && checkInitialAuth() && initialUser && initialUser.email && isSupabaseConfigured()) {
   loadUserDataFromSupabase(initialUser.email).then(dbData => {
     if (dbData) {
       const currentStoreState = useFinanceStore.getState();
