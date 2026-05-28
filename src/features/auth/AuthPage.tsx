@@ -168,7 +168,7 @@ export function AuthPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Ex: Nome"
-                      className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                      className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-[16px] font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                     />
                     <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   </div>
@@ -185,7 +185,7 @@ export function AuthPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nome@email.com"
-                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-[16px] font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -211,7 +211,7 @@ export function AuthPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-11 py-3 text-sm font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-11 py-3 text-[16px] font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <button

@@ -20,7 +20,7 @@ export function Dashboard() {
     <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-0 relative overflow-visible lg:overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
       <MainHeader />
 
-      <div className="px-5 pt-6 space-y-8">
+      <div className="px-5 pt-6 space-y-8 pb-32">
         
         {/* Cálculos do mês */}
         <div>

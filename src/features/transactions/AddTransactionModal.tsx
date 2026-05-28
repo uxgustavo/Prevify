@@ -64,17 +64,7 @@ export function AddTransactionModal({
   // Helper to format amount
   const displayAmount = (parseInt(amount || '0') / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const handleNumpadClick = (val: string) => {
-    if (val === 'backspace') {
-      setAmount(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
-    } else {
-      setAmount(prev => {
-        if (prev === '0') return val;
-        if (prev.length < 10) return prev + val; // max 10 digits
-        return prev;
-      });
-    }
-  };
+
 
   const handleAdd = () => {
     const numAmount = parseInt(amount || '0') / 100;
@@ -146,13 +136,26 @@ export function AddTransactionModal({
               <span className="text-gray-500 dark:text-gray-400 text-xs font-bold tracking-wider uppercase mb-2">
                 VALOR DA {type === 'SAIDA' ? 'SAÍDA' : type === 'ENTRADA' ? 'ENTRADA' : type === 'DIARIO' ? 'DIÁRIO' : type === 'CARTAO' ? 'FATURA CARTÃO' : 'ECONOMIA'}
               </span>
-              <div className="flex items-baseline text-gray-950 dark:text-gray-100 font-sans">
+              <div className="flex items-baseline text-gray-950 dark:text-gray-100 font-sans relative">
                 <span className="text-xl font-bold mr-1 text-gray-600 dark:text-gray-400">R$</span>
-                <span className="text-[40px] font-bold tracking-tight leading-none">
-                  {displayAmount}
-                </span>
-                {/* Blinking cursor effect */}
-                <span className="inline-block w-[2px] h-[32px] bg-[#FF5722] animate-pulse ml-1 align-middle" />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={displayAmount}
+                  onChange={(e) => {
+                    const cleanVal = e.target.value.replace(/\D/g, '');
+                    if (!cleanVal) {
+                      setAmount('0');
+                      return;
+                    }
+                    if (cleanVal.length <= 10) {
+                      setAmount(cleanVal.replace(/^0+/, '') || '0');
+                    }
+                  }}
+                  className="text-[40px] font-bold tracking-tight leading-none bg-transparent border-none outline-none focus:outline-none focus:ring-0 p-0 m-0 w-48 text-gray-950 dark:text-gray-100 text-center select-all"
+                  autoFocus
+                />
               </div>
             </div>
 
@@ -262,7 +265,7 @@ export function AddTransactionModal({
                             const val = parseInt(e.target.value);
                             setRepeatMonths(isNaN(val) ? 2 : val);
                           }}
-                          className="w-12 text-center font-bold text-gray-900 dark:text-gray-100 border-none bg-transparent p-0 focus:outline-none focus:ring-0 mr-1 text-sm"
+                          className="w-12 text-center font-bold text-gray-900 dark:text-gray-100 border-none bg-transparent p-0 focus:outline-none focus:ring-0 mr-1 text-[16px]"
                         />
                         <span className="text-xs text-gray-500 dark:text-gray-400 font-extrabold">meses</span>
                       </div>
@@ -355,7 +358,7 @@ export function AddTransactionModal({
                           }
                         }
                       }}
-                      className="w-full bg-transparent border-none text-xs font-semibold text-gray-800 dark:text-gray-200 focus:ring-0 py-1 px-2"
+                      className="w-full bg-transparent border-none text-[16px] font-semibold text-gray-800 dark:text-gray-200 focus:ring-0 py-1 px-2"
                     />
                     <button
                       type="button"
@@ -399,37 +402,7 @@ export function AddTransactionModal({
               </div>
             </div>
 
-            {/* Custom Numeric Keypad Layer */}
-            <div className="bg-[#F8FAFC] dark:bg-[#1C262E] border-t border-gray-100 dark:border-gray-800 p-4 pb-6 flex-shrink-0 transition-colors">
-              <div className="grid grid-cols-3 gap-1.5 max-w-sm mx-auto">
-                {['1','2','3','4','5','6','7','8','9','','0','backspace'].map((key, i) => {
-                  if (key === '') {
-                    return <div key={`empty-${i}`} className="h-12 w-full" />
-                  }
-                  
-                  return (
-                    <button 
-                      key={key}
-                      onClick={() => handleNumpadClick(key)}
-                      className="flex flex-col items-center justify-center bg-white dark:bg-[#141D23] hover:bg-gray-50 dark:hover:bg-gray-800 active:bg-gray-100 h-12 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all text-gray-900 dark:text-gray-100"
-                    >
-                      {key === 'backspace' ? (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-700 dark:text-gray-300"><path d="m11 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-                      ) : (
-                        <>
-                          <span className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-none">{key}</span>
-                          {['2','3','4','5','6','7','8','9'].includes(key) && (
-                            <span className="text-[8px] uppercase tracking-wider text-gray-400 dark:text-gray-600 font-extrabold mt-0.5">
-                              {key === '2' ? 'abc' : key === '3' ? 'def' : key === '4' ? 'ghi' : key === '5' ? 'jkl' : key === '6' ? 'mno' : key === '7' ? 'pqrs' : key === '8' ? 'tuv' : 'wxyz'}
-                            </span>
-                          )}
-                        </>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
+
           </motion.div>
         </>
       )}

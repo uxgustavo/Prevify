@@ -82,7 +82,7 @@ export function Daily() {
        </div>
 
        {/* List Rows */}
-       <div className="flex flex-col w-full bg-white dark:bg-[#141D23] transition-colors">
+       <div className="flex flex-col w-full bg-white dark:bg-[#141D23] transition-colors pb-32">
           {daysData.map((d) => (
               <div 
                  key={d.day} 
