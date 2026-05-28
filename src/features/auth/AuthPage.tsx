@@ -69,8 +69,9 @@ export function AuthPage() {
         
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-950 dark:text-white font-sans">
-            Prevify
+          <h1 className="text-3xl font-bold tracking-tight text-gray-950 dark:text-white font-sans flex items-center justify-center gap-3">
+            <img src="/logo-Prevify.png" alt="Prevify Logo" className="w-10 h-10 object-contain" />
+            <span>Prevify</span>
           </h1>
           <p className="text-sm text-gray-400 dark:text-gray-500 max-w-xs mx-auto font-sans">
             Inteligência em previsibilidade financeira
@@ -168,7 +169,7 @@ export function AuthPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Ex: Nome"
-                      className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-[16px] font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                      className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                     />
                     <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   </div>
@@ -185,7 +186,7 @@ export function AuthPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nome@email.com"
-                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-[16px] font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -211,7 +212,7 @@ export function AuthPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-11 py-3 text-[16px] font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-11 py-3 text-sm font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <button

@@ -39,7 +39,8 @@ export function AppLayout() {
     <div className="flex h-screen w-full flex-col lg:flex-row bg-gray-50 dark:bg-[#141D23] overflow-hidden transition-colors">
       {/* Sidebar for tablet/desktop */}
       <aside className="hidden lg:flex flex-col w-64 h-full bg-white dark:bg-[#1C262E] border-r border-gray-100/70 dark:border-[#141D23]/50 p-6 flex-shrink-0 relative transition-colors">
-        <div className="flex items-center justify-center mb-8 select-none">
+        <div className="flex items-center justify-center gap-3 mb-8 select-none">
+          <img src="/logo-Prevify.png" alt="Prevify Logo" className="w-9 h-9 object-contain" />
           <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 font-sans">Prevify</span>
         </div>
         
