@@ -80,7 +80,7 @@ export function AppLayout() {
 
       {/* Main Content Viewport */}
       <div ref={scrollRef} className="flex-grow flex flex-col h-full overflow-y-auto no-scrollbar relative w-full">
-        <main className="flex-1 w-full lg:max-w-6xl mx-auto py-0 lg:py-8 px-0 lg:px-6 min-h-full pb-24 lg:pb-8">
+        <main className="flex-1 w-full lg:max-w-6xl mx-auto py-0 lg:py-8 px-0 lg:px-6 min-h-full pb-0 lg:pb-8">
           <Outlet />
         </main>
 

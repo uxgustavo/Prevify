@@ -118,10 +118,10 @@ export function Tags() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-0 relative overflow-visible lg:overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
+    <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-28 lg:pb-0 relative overflow-visible lg:overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
        <MainHeader />
        
-       <div className="px-5 pt-4 pb-32">
+       <div className="px-5 pt-4">
          
          {/* Title area with controls */}
          <div className="flex items-center justify-between mb-4">
@@ -152,7 +152,7 @@ export function Tags() {
               placeholder="Filtrar tags" 
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              className="bg-transparent border-none outline-none w-full text-[16px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 font-medium" 
+              className="bg-transparent border-none outline-none w-full text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 font-medium" 
             />
             {filterText && (
               <button onClick={() => setFilterText('')} className="p-0.5 text-gray-400 hover:text-gray-600">
@@ -194,7 +194,7 @@ export function Tags() {
                    placeholder="Ex: Viagem, Acadêmico, Presentes"
                    value={newTagName}
                    onChange={(e) => setNewTagName(e.target.value)}
-                   className="w-full bg-white dark:bg-[#141D23] border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-[16px] font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#8B5CF6] focus:border-[#8B5CF6]"
+                   className="w-full bg-white dark:bg-[#141D23] border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-sm font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-[#8B5CF6] focus:border-[#8B5CF6]"
                    autoFocus
                    required
                  />

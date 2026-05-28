@@ -111,7 +111,7 @@ export function Menu() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-0 relative overflow-visible lg:overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
+    <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-28 lg:pb-0 relative overflow-visible lg:overflow-hidden lg:rounded-[25px] lg:border lg:border-gray-100 lg:dark:border-gray-800/60 lg:shadow-md text-gray-900 dark:text-gray-100 transition-colors">
       
       {/* Dynamic Header */}
       <div 
@@ -137,7 +137,7 @@ export function Menu() {
         </button>
       </div>
 
-      <div className="px-5 pt-6 space-y-6 pb-32">
+      <div className="px-5 pt-6 space-y-6">
         
         {/* SECTION 1: USER PROFILE CARD (Updates in real-time) */}
         <div className="bg-gradient-to-br from-gray-50/60 to-gray-100/40 dark:from-[#1C262E] dark:to-[#172027] p-5 rounded-3xl border border-gray-100/80 dark:border-gray-800/80 flex items-center gap-4 relative overflow-hidden">
@@ -198,7 +198,7 @@ export function Menu() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   placeholder="Nome de Exibição"
-                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-[16px] font-semibold text-gray-850 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-850 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -212,7 +212,7 @@ export function Menu() {
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
                   placeholder="name@email.com"
-                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-[16px] font-semibold text-gray-850 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-850 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -273,7 +273,7 @@ export function Menu() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-[16px] font-semibold text-gray-855 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-855 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -287,7 +287,7 @@ export function Menu() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Mínimo 3 caracteres"
-                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-[16px] font-semibold text-gray-855 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-855 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -301,7 +301,7 @@ export function Menu() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Mínimo 3 caracteres"
-                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-[16px] font-semibold text-gray-855 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
+                  className="w-full bg-white dark:bg-[#141D23] border border-gray-200/60 dark:border-gray-800/85 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-semibold text-gray-855 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#FF5722] focus:border-[#FF5722] transition-all"
                 />
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
