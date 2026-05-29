@@ -8,6 +8,8 @@ export interface Transaction {
   date: string; // ISO date string
   tags?: string[];
   purchaseDate?: string; // Original purchase date for Cartão temporary offset logic
+  recurrenceId?: string;
+  isRecurrenceRoot?: boolean;
 }
 
 export const CATEGORY_COLORS: Record<TransactionType, { text: string, bg: string, iconBg: string }> = {

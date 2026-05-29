@@ -302,10 +302,22 @@ export function DayTransactions() {
                    <div className="w-12 h-12 rounded-full bg-pink-100 text-[#C4245A] flex items-center justify-center mx-auto">
                       <Trash2 className="w-6 h-6 animate-pulse" />
                    </div>
-                   <div className="space-y-1">
-                      <h3 className="text-lg font-bold text-gray-900 tracking-tight">Excluir Lançamento?</h3>
-                      <p className="text-xs text-gray-500 font-medium px-2 leading-relaxed">Essa ação é irreversível e irá atualizar o saldo da sua conta imediatamente.</p>
-                   </div>
+                    {(() => {
+                       const tx = transactions.find(t => t.id === deletingId);
+                       const isRootRecurrence = tx?.recurrenceId && tx?.isRecurrenceRoot;
+                       return (
+                          <div className="space-y-1">
+                             <h3 className="text-lg font-bold text-gray-900 tracking-tight">
+                                {isRootRecurrence ? 'Excluir Repetições?' : 'Excluir Lançamento?'}
+                             </h3>
+                             <p className="text-xs text-gray-500 font-medium px-2 leading-relaxed">
+                                {isRootRecurrence 
+                                   ? 'Esse lançamento é a raiz de uma repetição. Essa ação é irreversível e irá excluir este lançamento e todas as suas repetições futuras imediatamente.' 
+                                   : 'Essa ação é irreversível e irá atualizar o saldo da sua conta imediatamente.'}
+                             </p>
+                          </div>
+                       );
+                    })()}
                    <div className="flex items-center gap-2.5 pt-2">
                       <button
                          type="button"

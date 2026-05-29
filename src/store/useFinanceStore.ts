@@ -264,20 +264,26 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     const transactionToDelete = state.transactions.find(t => t.id === id);
     if (!transactionToDelete) return { transactions: state.transactions };
 
-    let balanceDelta = 0;
-    if (transactionToDelete.type === 'ENTRADA') {
-      balanceDelta = -transactionToDelete.amount;
-    } else if (transactionToDelete.type === 'SAIDA') {
-      balanceDelta = transactionToDelete.amount;
-    } else if (transactionToDelete.type === 'DIARIO') {
-      balanceDelta = transactionToDelete.amount;
-    } else if (transactionToDelete.type === 'ECONOMIA') {
-      balanceDelta = transactionToDelete.amount;
-    } else if (transactionToDelete.type === 'CARTAO') {
-      balanceDelta = 0; // Deletar CARTAO não afeta o saldo corrente imediatamente
+    // Find all transactions that should be deleted
+    let transactionsToDelete = [transactionToDelete];
+    if (transactionToDelete.recurrenceId && transactionToDelete.isRecurrenceRoot) {
+      transactionsToDelete = state.transactions.filter(
+        (t) => t.recurrenceId === transactionToDelete.recurrenceId
+      );
     }
 
-    const nextTransactions = state.transactions.filter((t) => t.id !== id);
+    let balanceDelta = 0;
+    transactionsToDelete.forEach((tx) => {
+      if (tx.type === 'ENTRADA') {
+        balanceDelta -= tx.amount;
+      } else if (tx.type === 'SAIDA' || tx.type === 'DIARIO' || tx.type === 'ECONOMIA') {
+        balanceDelta += tx.amount;
+      }
+      // Deletar CARTAO não afeta o saldo corrente imediatamente
+    });
+
+    const toDeleteIds = new Set(transactionsToDelete.map((t) => t.id));
+    const nextTransactions = state.transactions.filter((t) => !toDeleteIds.has(t.id));
     const nextBalance = state.currentBalance + balanceDelta;
 
     saveUserData(state.currentUser.email, nextTransactions, nextBalance, state.customTags);

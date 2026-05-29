@@ -7,6 +7,7 @@ import { useTransactions } from '../../context/TransactionContext';
 import { addMonths } from 'date-fns';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { CustomDatePicker } from '../../components/CustomDatePicker';
+import { v4 as uuidv4 } from 'uuid';
 
 export function AddTransactionModal({ 
   isOpen, 
@@ -81,6 +82,7 @@ export function AddTransactionModal({
     }
 
     const baseDate = new Date(selectedDate + 'T12:00:00');
+    const recurrenceId = isRecurring && totalMonths > 1 ? uuidv4() : undefined;
 
     for (let i = 0; i < totalMonths; i++) {
       const instanceDate = addMonths(baseDate, i);
@@ -89,7 +91,9 @@ export function AddTransactionModal({
          amount: numAmount,
          description: description || type,
          date: instanceDate.toISOString(),
-         tags: selectedTags
+         tags: selectedTags,
+         recurrenceId,
+         isRecurrenceRoot: recurrenceId ? (i === 0) : undefined
       });
     }
     
