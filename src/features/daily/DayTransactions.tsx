@@ -3,7 +3,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Edit2, Check, X, Plus } f
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTransactions } from '../../context/TransactionContext';
 import { format, parseISO, isSameDay } from 'date-fns';
-import { cn, getLocalTodayString, getTagStyle } from '../../lib/utils';
+import { cn, getLocalTodayString, getTagStyle, getSelectedTagClass } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { AddTransactionModal } from '../transactions/AddTransactionModal';
@@ -246,14 +246,11 @@ export function DayTransactions() {
   }, [editingTx]);
 
   const displayAmount = (parseInt(editAmount || '0') / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-
-
-  return (
+return (
     <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-24 text-gray-900 dark:text-gray-100 transition-colors">
        {/* Header */}
        <div className="flex items-center justify-between px-5 pt-safe-header pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-20 transition-colors">
-          <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-gray-800 dark:text-gray-200"><ArrowLeft className="w-5 h-5" /></button>
+          <button onClick={() => navigate('/')} className="p-1 -ml-1 text-gray-800 dark:text-gray-200"><ArrowLeft className="w-5 h-5" /></button>
           
            <div className="flex items-center gap-4">
               <button 
@@ -551,7 +548,7 @@ export function DayTransactions() {
                                    className={cn(
                                      "text-xs font-bold px-2.5 py-1 rounded-full transition-all border flex items-center gap-1",
                                      isSelected 
-                                       ? "bg-[#FF5722] border-[#FF5722] text-white" 
+                                       ? getSelectedTagClass(tag.color) 
                                        : "bg-[#F8FAFC] dark:bg-[#1C262E] border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-700"
                                    )}
                                  >
@@ -567,7 +564,10 @@ export function DayTransactions() {
                                    key={tag}
                                    type="button"
                                    onClick={() => setEditTags(editTags.filter(t => t !== tag))}
-                                   className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#FF5722] border-[#FF5722] text-white transition-all border"
+                                   className={cn(
+                                      "text-xs font-bold px-2.5 py-1 rounded-full transition-all border",
+                                      getSelectedTagClass('bg-orange-100')
+                                    )}
                                  >
                                    {tag} ×
                                  </button>

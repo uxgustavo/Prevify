@@ -85,3 +85,15 @@ export function getTagStyle(tagName: string, customTags: { name: string; color: 
     icon,
   };
 }
+
+export function getSelectedTagClass(bgClass: string): string {
+  if (bgClass.includes('orange')) return 'bg-orange-600 border-orange-600 text-white';
+  if (bgClass.includes('yellow')) return 'bg-yellow-500 border-yellow-500 text-neutral-900';
+  if (bgClass.includes('pink')) return 'bg-pink-600 border-pink-600 text-white';
+  if (bgClass.includes('purple')) return 'bg-[#8B5CF6] border-[#8B5CF6] text-white';
+  if (bgClass.includes('emerald')) return 'bg-[#10B981] border-[#10B981] text-white';
+  if (bgClass.includes('blue')) return 'bg-[#3B82F6] border-[#3B82F6] text-white';
+  if (bgClass.includes('rose')) return 'bg-rose-600 border-rose-600 text-white';
+  if (bgClass.includes('slate')) return 'bg-slate-600 border-slate-600 text-white';
+  return 'bg-[#FF5722] border-[#FF5722] text-white';
+}
