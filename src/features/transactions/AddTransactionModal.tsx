@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Delete } from 'lucide-react';
-import { cn, getLocalTodayString } from '../../lib/utils';
+import { cn, getLocalTodayString, getTagStyle } from '../../lib/utils';
 import { CATEGORY_COLORS, TransactionType } from '../../types';
 import { useTransactions } from '../../context/TransactionContext';
 import { addMonths } from 'date-fns';
@@ -303,6 +303,7 @@ export function AddTransactionModal({
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {customTags.map((tag) => {
                     const isSelected = selectedTags.includes(tag.name);
+                    const tagStyle = getTagStyle(tag.name, customTags);
                     return (
                       <button
                         key={tag.name}
@@ -317,7 +318,7 @@ export function AddTransactionModal({
                         className={cn(
                           "text-xs font-bold px-2.5 py-1 rounded-full transition-all border flex items-center gap-1",
                           isSelected 
-                            ? "bg-[#FF5722] border-[#FF5722] text-white" 
+                            ? tagStyle.selectedClass 
                             : "bg-[#F8FAFC] dark:bg-[#1C262E] border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
                         )}
                       >
@@ -328,12 +329,16 @@ export function AddTransactionModal({
                   })}
                   {selectedTags.map((tag) => {
                     if (customTags.some((ct) => ct.name === tag)) return null;
+                    const tagStyle = getTagStyle(tag, customTags);
                     return (
                       <button
                         key={tag}
                         type="button"
                         onClick={() => setSelectedTags(selectedTags.filter(t => t !== tag))}
-                        className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#FF5722] border-[#FF5722] text-white transition-all border"
+                        className={cn(
+                          "text-xs font-bold px-2.5 py-1 rounded-full transition-all border flex items-center gap-1",
+                          tagStyle.selectedClass
+                        )}
                       >
                         {tag} ×
                       </button>
