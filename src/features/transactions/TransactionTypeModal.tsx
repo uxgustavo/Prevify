@@ -70,7 +70,7 @@ export function TransactionTypeModal({
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#141D23]/40 backdrop-blur-[4px] z-50 transition-opacity" 
+            className="fixed inset-0 bg-[#141D23]/40 backdrop-blur-[4px] z-50" 
             onClick={onClose} 
           />
           <motion.div 

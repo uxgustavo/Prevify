@@ -204,7 +204,7 @@ export function AuthPage() {
                 {isLogin && (
                   <button
                     type="button"
-                    onClick={() => alert(`Sua senha pré-configurada é "123"`)}
+                    onClick={() => alert('Entre em contato com o desenvolvedor.')}
                     className="text-[10px] font-bold text-[#FF5722] hover:underline"
                   >
                     Esqueceu a senha?
