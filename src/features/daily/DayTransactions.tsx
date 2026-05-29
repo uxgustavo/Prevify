@@ -126,6 +126,17 @@ export function DayTransactions() {
   const customTags = useFinanceStore((state) => state.customTags);
   const addCustomTag = useFinanceStore((state) => state.addCustomTag);
 
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
   // States for the edit modal
   const [editingTx, setEditingTx] = useState<any | null>(null);
   const [editAmount, setEditAmount] = useState<string>('0'); // stored as cents string
@@ -189,7 +200,6 @@ export function DayTransactions() {
   // Set initial editing fields when editingTx is defined
   useEffect(() => {
      if (editingTx) {
-        window.scrollTo(0, 0);
         if (editFormScrollRef.current) {
            editFormScrollRef.current.scrollTop = 0;
         }
@@ -333,14 +343,20 @@ export function DayTransactions() {
                  />
                  
                  <motion.div
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '100%' }}
-                    transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-                    className="fixed inset-x-0 bottom-0 z-50 bg-[#F6FAFF] dark:bg-[#1C262E] rounded-t-[2rem] max-w-md mx-auto flex flex-col h-[93vh] overflow-hidden shadow-2xl border-t dark:border-gray-800 transition-colors"
-                 >
-                    {/* Handle */}
-                    <div className="w-8 h-1 bg-[#BDCAB9] dark:bg-gray-700 rounded-full mx-auto my-3 flex-shrink-0" />
+                     initial={isMobile ? { y: '100%', x: 0 } : { scale: 0.95, opacity: 0, x: '-50%', y: '-50%' }}
+                     animate={isMobile ? { y: 0, x: 0 } : { scale: 1, opacity: 1, x: '-50%', y: '-50%' }}
+                     exit={isMobile ? { y: '100%', x: 0 } : { scale: 0.95, opacity: 0, x: '-50%', y: '-50%' }}
+                     transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+                     style={isMobile ? {} : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', position: 'fixed' }}
+                     className={cn(
+                        "fixed z-50 bg-[#F6FAFF] dark:bg-[#1C262E] flex flex-col shadow-2xl transition-colors overflow-hidden",
+                        isMobile 
+                           ? "inset-x-0 bottom-0 rounded-t-2xl max-w-md mx-auto max-h-[93vh]" 
+                           : "w-full max-w-md max-h-[90vh] rounded-2xl border border-transparent dark:border-gray-800"
+                     )}
+                  >
+                     {/* iOS Mini Drag Handle */}
+                     <div className={cn("w-8 h-1 bg-[#BDCAB9] dark:bg-gray-700 rounded-sm mx-auto mt-3 mb-2 flex-shrink-0", !isMobile && "hidden")} />
 
                     {/* Header Title & Close */}
                     <div className="flex justify-between items-center px-6 pt-1 pb-3 flex-shrink-0">

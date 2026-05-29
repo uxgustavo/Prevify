@@ -51,7 +51,6 @@ export function AddTransactionModal({
 
   useEffect(() => {
     if (isOpen) {
-      window.scrollTo(0, 0);
       if (formScrollRef.current) {
         formScrollRef.current.scrollTop = 0;
       }
@@ -117,14 +116,14 @@ export function AddTransactionModal({
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             style={isMobile ? {} : { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', position: 'fixed' }}
             className={cn(
-              "fixed z-50 bg-[#F6FAFF] dark:bg-[#1C262E] flex flex-col shadow-2xl transition-all overflow-hidden",
+              "fixed z-50 bg-[#F6FAFF] dark:bg-[#1C262E] flex flex-col shadow-2xl transition-colors overflow-hidden",
               isMobile 
-                ? "inset-x-0 bottom-0 rounded-t-[2rem] max-w-md mx-auto h-[93vh]" 
-                : "w-full max-w-[440px] max-h-[90vh] rounded-[2rem] border border-transparent dark:border-gray-800"
+                ? "inset-x-0 bottom-0 rounded-t-2xl max-w-md mx-auto max-h-[93vh]" 
+                : "w-full max-w-md max-h-[90vh] rounded-2xl border border-transparent dark:border-gray-800"
             )}
           >
             {/* iOS Mini Drag Handle */}
-            <div className={cn("w-8 h-1 bg-[#BDCAB9] dark:bg-gray-700 rounded-full mx-auto my-3 flex-shrink-0", !isMobile && "hidden")} />
+            <div className={cn("w-8 h-1 bg-[#BDCAB9] dark:bg-gray-700 rounded-sm mx-auto mt-3 mb-2 flex-shrink-0", !isMobile && "hidden")} />
 
             {/* Header Title & Close */}
             <div className="flex justify-between items-center px-6 pt-1 pb-3 flex-shrink-0" style={{ marginTop: '15px' }}>

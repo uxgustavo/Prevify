@@ -73,14 +73,23 @@ export default function App() {
   useEffect(() => {
     if (!isLoggedIn) return;
 
+    let lastUpdate = 0;
     const updateSessionExpiry = () => {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sessionExpiry', String(Date.now() + 2 * 60 * 60 * 1000));
+      const now = Date.now();
+      if (now - lastUpdate > 30000) { // Limit updates to once every 30 seconds
+        lastUpdate = now;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('sessionExpiry', String(now + 2 * 60 * 60 * 1000));
+        }
       }
     };
 
     // Update expiry initially on activity setup
-    updateSessionExpiry();
+    const now = Date.now();
+    lastUpdate = now;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sessionExpiry', String(now + 2 * 60 * 60 * 1000));
+    }
 
     const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
     activityEvents.forEach((event) => {
