@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Delete } from 'lucide-react';
 import { cn, getLocalTodayString } from '../../lib/utils';
@@ -37,6 +37,7 @@ export function AddTransactionModal({
   const { addTransaction } = useTransactions();
 
   const [isMobile, setIsMobile] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -49,6 +50,7 @@ export function AddTransactionModal({
 
   useEffect(() => {
     if (isOpen) {
+      window.scrollTo(0, 0);
       setType(initialCategory || initialType);
       setAmount('0');
       setDescription('');
@@ -58,6 +60,11 @@ export function AddTransactionModal({
       setSelectedTags([]);
       setShowTagInput(false);
       setNewTagText('');
+      
+      // Delay focus slightly to ensure input element is mounted and animated
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
     }
   }, [isOpen, initialType, initialCategory, initialDate]);
 
@@ -139,6 +146,7 @@ export function AddTransactionModal({
               <div className="flex items-baseline text-gray-950 dark:text-gray-100 font-sans relative">
                 <span className="text-xl font-bold mr-1 text-gray-600 dark:text-gray-400">R$</span>
                 <input
+                  ref={inputRef}
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"

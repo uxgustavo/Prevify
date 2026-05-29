@@ -134,8 +134,26 @@ const saveUserData = (email: string, transactions: Transaction[], balance: numbe
     localStorage.setItem(`currentBalance_${keySuffix}`, String(balance));
     localStorage.setItem(`customTags_${keySuffix}`, JSON.stringify(customTags));
 
+    // Mark local data as dirty
+    localStorage.setItem(`isDirty_${keySuffix}`, 'true');
+
     // Async background sync with Supabase
-    saveUserDataToSupabase(email, transactions, balance, customTags);
+    saveUserDataToSupabase(email, transactions, balance, customTags).then((success) => {
+      if (success) {
+        // Only set dirty to false if no further local modifications occurred
+        const currentTx = localStorage.getItem(`transactions_${keySuffix}`);
+        const currentBal = localStorage.getItem(`currentBalance_${keySuffix}`);
+        const currentTags = localStorage.getItem(`customTags_${keySuffix}`);
+        
+        if (
+          currentTx === JSON.stringify(transactions) &&
+          currentBal === String(balance) &&
+          currentTags === JSON.stringify(customTags)
+        ) {
+          localStorage.setItem(`isDirty_${keySuffix}`, 'false');
+        }
+      }
+    });
   }
 };
 
@@ -389,27 +407,9 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     const loadedBal = getInitialBalance(user.email);
     const loadedTags = getInitialCustomTags(user.email);
 
-    // Transparent async query check on login
-    if (isSupabaseConfigured()) {
-      loadUserDataFromSupabase(user.email).then(dbData => {
-        if (dbData) {
-          const syncedTx = dbData.transactions !== null ? dbData.transactions : loadedTx;
-          const syncedBal = dbData.balance !== null ? dbData.balance : loadedBal;
-          const syncedTags = dbData.customTags !== null ? dbData.customTags : loadedTags;
-          
-          set({
-            transactions: syncedTx,
-            currentBalance: syncedBal,
-            customTags: syncedTags
-          });
-          
-          const suffix = user.email.toLowerCase();
-          localStorage.setItem(`transactions_${suffix}`, JSON.stringify(syncedTx));
-          localStorage.setItem(`currentBalance_${suffix}`, String(syncedBal));
-          localStorage.setItem(`customTags_${suffix}`, JSON.stringify(syncedTags));
-        }
-      }).catch(() => {});
-    }
+    // Trigger sync in background: if dirty it uploads, if clean it downloads
+    syncUserData(user.email).catch(() => {});
+    syncUnsyncedUsers().catch(() => {});
 
     set({ 
       isLoggedIn: true, 
@@ -433,8 +433,35 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     const updatedUsers = [...users, newUser];
     localStorage.setItem('appUsers', JSON.stringify(updatedUsers));
     
+    // Track unsynced user registrations
+    const unsyncedStr = localStorage.getItem('unsyncedUsers') || '[]';
+    try {
+      const unsyncedList = JSON.parse(unsyncedStr);
+      if (Array.isArray(unsyncedList)) {
+        unsyncedList.push(newUser);
+        localStorage.setItem('unsyncedUsers', JSON.stringify(unsyncedList));
+      }
+    } catch (e) {
+      localStorage.setItem('unsyncedUsers', JSON.stringify([newUser]));
+    }
+    
     // Transparent register to central database in background
-    registerUserInSupabase(name, email, pass);
+    registerUserInSupabase(name, email, pass).then((success) => {
+      if (success) {
+        try {
+          const unsyncedStr = localStorage.getItem('unsyncedUsers') || '[]';
+          const unsyncedList = JSON.parse(unsyncedStr);
+          if (Array.isArray(unsyncedList)) {
+            const filtered = unsyncedList.filter((u: any) => u.email.toLowerCase() !== email.toLowerCase());
+            if (filtered.length > 0) {
+              localStorage.setItem('unsyncedUsers', JSON.stringify(filtered));
+            } else {
+              localStorage.removeItem('unsyncedUsers');
+            }
+          }
+        } catch (e) {}
+      }
+    });
     
     const update = { name, email };
     localStorage.setItem('isLoggedIn', 'true');
@@ -528,28 +555,118 @@ export const useFinanceStore = create<FinanceState>((set) => ({
   },
 }));
 
-// Initial background synchronization on startup
-if (typeof window !== 'undefined' && checkInitialAuth() && initialUser && initialUser.email && isSupabaseConfigured()) {
-  loadUserDataFromSupabase(initialUser.email).then(dbData => {
-    if (dbData) {
-      const currentStoreState = useFinanceStore.getState();
-      const syncedTx = dbData.transactions !== null ? dbData.transactions : currentStoreState.transactions;
-      const syncedBal = dbData.balance !== null ? dbData.balance : currentStoreState.currentBalance;
-      const syncedTags = dbData.customTags !== null ? dbData.customTags : currentStoreState.customTags;
-      
-      useFinanceStore.setState({
-        transactions: syncedTx,
-        currentBalance: syncedBal,
-        customTags: syncedTags,
-      });
-
-      // Maintain local storage sync
-      const suffix = initialUser.email.toLowerCase();
-      localStorage.setItem(`transactions_${suffix}`, JSON.stringify(syncedTx));
-      localStorage.setItem(`currentBalance_${suffix}`, String(syncedBal));
-      localStorage.setItem(`customTags_${suffix}`, JSON.stringify(syncedTags));
+// Sync functions implementation
+export async function syncUnsyncedUsers(): Promise<boolean> {
+  if (typeof window === 'undefined' || !isSupabaseConfigured()) return false;
+  
+  const unsyncedUsersStr = localStorage.getItem('unsyncedUsers');
+  if (!unsyncedUsersStr) return true;
+  
+  try {
+    const unsyncedUsers = JSON.parse(unsyncedUsersStr);
+    if (!Array.isArray(unsyncedUsers) || unsyncedUsers.length === 0) return true;
+    
+    const remainingUsers: any[] = [];
+    let allSuccessful = true;
+    
+    for (const u of unsyncedUsers) {
+      const success = await registerUserInSupabase(u.name, u.email, u.password);
+      if (!success) {
+        remainingUsers.push(u);
+        allSuccessful = false;
+      }
     }
-  }).catch(e => {
-    console.warn('Initial background database sync-up failed (offline fallback active):', e);
+    
+    if (remainingUsers.length > 0) {
+      localStorage.setItem('unsyncedUsers', JSON.stringify(remainingUsers));
+    } else {
+      localStorage.removeItem('unsyncedUsers');
+    }
+    
+    return allSuccessful;
+  } catch (e) {
+    console.error('Error during unsynced users migration:', e);
+    return false;
+  }
+}
+
+export async function syncUserData(email: string): Promise<boolean> {
+  if (typeof window === 'undefined' || !email || !isSupabaseConfigured()) return false;
+  
+  const keySuffix = email.toLowerCase();
+  const isDirty = localStorage.getItem(`isDirty_${keySuffix}`) === 'true';
+  
+  if (isDirty) {
+    const localTxStr = localStorage.getItem(`transactions_${keySuffix}`);
+    const localBalStr = localStorage.getItem(`currentBalance_${keySuffix}`);
+    const localTagsStr = localStorage.getItem(`customTags_${keySuffix}`);
+    
+    let txs: Transaction[] = [];
+    let bal = 0;
+    let tags: CustomTag[] = [];
+    
+    try {
+      if (localTxStr) txs = JSON.parse(localTxStr);
+      if (localBalStr) bal = parseFloat(localBalStr);
+      if (localTagsStr) tags = JSON.parse(localTagsStr);
+    } catch (e) {
+      // ignore
+    }
+    
+    const success = await saveUserDataToSupabase(email, txs, bal, tags);
+    if (success) {
+      localStorage.setItem(`isDirty_${keySuffix}`, 'false');
+      return true;
+    }
+    return false;
+  } else {
+    try {
+      const dbData = await loadUserDataFromSupabase(email);
+      if (dbData) {
+        const syncedTx = dbData.transactions !== null ? dbData.transactions : [];
+        const syncedBal = dbData.balance !== null ? dbData.balance : 0;
+        const syncedTags = dbData.customTags !== null ? dbData.customTags : [];
+        
+        localStorage.setItem(`transactions_${keySuffix}`, JSON.stringify(syncedTx));
+        localStorage.setItem(`currentBalance_${keySuffix}`, String(syncedBal));
+        localStorage.setItem(`customTags_${keySuffix}`, JSON.stringify(syncedTags));
+        
+        const currentStore = useFinanceStore.getState();
+        if (currentStore.currentUser.email.toLowerCase() === email.toLowerCase()) {
+          useFinanceStore.setState({
+            transactions: syncedTx,
+            currentBalance: syncedBal,
+            customTags: syncedTags
+          });
+        }
+        return true;
+      }
+    } catch (e) {
+      console.warn('Failed to load user data from Supabase:', e);
+    }
+    return false;
+  }
+}
+
+// Initial background synchronization on startup
+if (typeof window !== 'undefined' && checkInitialAuth() && initialUser && initialUser.email) {
+  syncUnsyncedUsers().then(() => {
+    if (initialUser.email) {
+      syncUserData(initialUser.email).catch(e => {
+        console.warn('Initial background database sync-up failed (offline fallback active):', e);
+      });
+    }
+  }).catch(() => {});
+}
+
+// Online reconnection event listener
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    syncUnsyncedUsers().then(() => {
+      const email = useFinanceStore.getState().currentUser.email;
+      if (email) {
+        syncUserData(email).catch(() => {});
+      }
+    }).catch(() => {});
   });
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Edit2, Check, X, Plus } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTransactions } from '../../context/TransactionContext';
@@ -136,6 +136,7 @@ export function DayTransactions() {
   const [showTagInput, setShowTagInput] = useState(false);
   const [newTagText, setNewTagText] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   // Use the year and month coordinates from context
   const targetDate = useMemo(() => {
@@ -187,6 +188,7 @@ export function DayTransactions() {
   // Set initial editing fields when editingTx is defined
   useEffect(() => {
      if (editingTx) {
+        window.scrollTo(0, 0);
         // Convert the float amount to cents string representation
         const centsStr = Math.round(editingTx.amount * 100).toString();
         setEditAmount(centsStr);
@@ -196,6 +198,11 @@ export function DayTransactions() {
         setEditTags(editingTx.tags || []);
         setShowTagInput(false);
         setNewTagText('');
+        
+        // Delay focus slightly to ensure input element is mounted and animated
+        setTimeout(() => {
+           editInputRef.current?.focus();
+        }, 50);
      }
   }, [editingTx]);
 
@@ -355,6 +362,7 @@ export function DayTransactions() {
                        <div className="flex items-baseline text-gray-950 dark:text-gray-100 font-sans relative">
                            <span className="text-xl font-bold mr-1 text-gray-600 dark:text-gray-400">R$</span>
                            <input
+                              ref={editInputRef}
                               type="text"
                               inputMode="numeric"
                               pattern="[0-9]*"

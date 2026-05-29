@@ -1,8 +1,8 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Get environment variables with fallback
-const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
-const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 let dbClient: SupabaseClient | null = null;
 
@@ -33,16 +33,19 @@ export function isSupabaseConfigured(): boolean {
 /**
  * Registers/Upserts user credentials in the central database.
  */
-export async function registerUserInSupabase(name: string, email: string, pass: string) {
+export async function registerUserInSupabase(name: string, email: string, pass: string): Promise<boolean> {
   const supabase = getSupabaseClient();
-  if (!supabase) return;
+  if (!supabase) return false;
   try {
     const cleanEmail = email.toLowerCase();
-    await supabase
+    const { error } = await supabase
       .from('app_users')
       .upsert({ email: cleanEmail, name, password: pass }, { onConflict: 'email' });
+    if (error) throw error;
+    return true;
   } catch (error) {
     console.error('Failed to sync user registration to Supabase:', error);
+    return false;
   }
 }
 
@@ -106,22 +109,24 @@ export async function saveUserDataToSupabase(
   transactions: any[],
   balance: number,
   customTags: any[]
-) {
+): Promise<boolean> {
   const supabase = getSupabaseClient();
-  if (!supabase) return;
+  if (!supabase) return false;
   try {
     const cleanEmail = email.toLowerCase();
     
     // 1. Save user balance
-    await supabase
+    const { error: balError } = await supabase
       .from('user_balances')
       .upsert({ user_email: cleanEmail, balance }, { onConflict: 'user_email' });
+    if (balError) throw balError;
       
     // 2. Sync transactions: perform clear and insert to ensure synchronized collections
-    await supabase
+    const { error: delTxError } = await supabase
       .from('transactions')
       .delete()
       .eq('user_email', cleanEmail);
+    if (delTxError) throw delTxError;
       
     if (transactions.length > 0) {
       const rows = transactions.map(t => ({
@@ -134,14 +139,16 @@ export async function saveUserDataToSupabase(
         purchase_date: t.purchaseDate || null,
         tags: t.tags || []
       }));
-      await supabase.from('transactions').insert(rows);
+      const { error: insTxError } = await supabase.from('transactions').insert(rows);
+      if (insTxError) throw insTxError;
     }
     
     // 3. Sync custom tags
-    await supabase
+    const { error: delTagError } = await supabase
       .from('custom_tags')
       .delete()
       .eq('user_email', cleanEmail);
+    if (delTagError) throw delTagError;
       
     if (customTags.length > 0) {
       const tagRows = customTags.map(tg => ({
@@ -150,9 +157,12 @@ export async function saveUserDataToSupabase(
         color: tg.color,
         icon: tg.icon
       }));
-      await supabase.from('custom_tags').insert(tagRows);
+      const { error: insTagError } = await supabase.from('custom_tags').insert(tagRows);
+      if (insTagError) throw insTagError;
     }
+    return true;
   } catch (error) {
     console.error('Failed to save user data to Supabase:', error);
+    return false;
   }
 }
