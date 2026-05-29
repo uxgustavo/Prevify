@@ -3,7 +3,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Trash2, Edit2, Check, X, Plus } f
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTransactions } from '../../context/TransactionContext';
 import { format, parseISO, isSameDay } from 'date-fns';
-import { cn, getLocalTodayString } from '../../lib/utils';
+import { cn, getLocalTodayString, getTagStyle } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { AddTransactionModal } from '../transactions/AddTransactionModal';
@@ -20,6 +20,7 @@ interface SwipeableTransactionItemProps {
 
 function SwipeableTransactionItem({ t, badge, getTypeName, onEdit, onDelete }: SwipeableTransactionItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const customTags = useFinanceStore((state) => state.customTags);
 
   return (
     <div className="relative overflow-hidden border-b border-gray-50 dark:border-gray-800 bg-white dark:bg-[#141D23] select-none">
@@ -83,11 +84,20 @@ function SwipeableTransactionItem({ t, badge, getTypeName, onEdit, onDelete }: S
                 <p className="text-[17px] text-gray-950 dark:text-gray-100 font-semibold tracking-tight leading-tight mb-1">{t.description}</p>
                 {t.tags && t.tags.length > 0 && (
                    <div className="flex flex-wrap gap-1 mb-1 mt-0.5">
-                      {t.tags.map((tg: string, idx: number) => (
-                         <span key={idx} className="bg-orange-50 dark:bg-orange-950/10 text-[#FF5722] text-[10px] font-extrabold px-1.5 py-0.5 rounded border border-orange-100 dark:border-orange-900/30">
-                            {tg}
-                         </span>
-                      ))}
+                      {t.tags.map((tg: string, idx: number) => {
+                         const tagStyle = getTagStyle(tg, customTags);
+                         return (
+                            <span key={idx} className={cn(
+                               "text-[10px] font-extrabold px-1.5 py-0.5 rounded border flex items-center gap-1 transition-colors",
+                               tagStyle.bgClass,
+                               tagStyle.textClass,
+                               tagStyle.borderClass
+                            )}>
+                               <span>{tagStyle.icon}</span>
+                               <span>{tg}</span>
+                            </span>
+                         );
+                      })}
                    </div>
                 )}
                 <p className="text-[14px] text-gray-400 dark:text-gray-500 font-medium">{format(parseISO(t.date), 'dd/MM')}</p>
@@ -119,7 +129,7 @@ function SwipeableTransactionItem({ t, badge, getTypeName, onEdit, onDelete }: S
 export function DayTransactions() {
   const navigate = useNavigate();
   const { day } = useParams();
-  const { transactions, selectedDate, deleteTransaction, updateTransaction } = useTransactions();
+  const { transactions, selectedDate, setSelectedDate, deleteTransaction, updateTransaction } = useTransactions();
   const [filterType, setFilterType] = useState<string>('TODOS');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -164,6 +174,24 @@ export function DayTransactions() {
     const dStr = String(targetDate.getDate()).padStart(2, '0');
     return `${year}-${month}-${dStr}`;
   }, [targetDate]);
+
+  const handlePrevDay = () => {
+    const prevDate = new Date(targetDate);
+    prevDate.setDate(prevDate.getDate() - 1);
+    if (prevDate.getMonth() !== targetDate.getMonth() || prevDate.getFullYear() !== targetDate.getFullYear()) {
+      setSelectedDate(prevDate);
+    }
+    navigate(`/dia/${prevDate.getDate()}`);
+  };
+
+  const handleNextDay = () => {
+    const nextDate = new Date(targetDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    if (nextDate.getMonth() !== targetDate.getMonth() || nextDate.getFullYear() !== targetDate.getFullYear()) {
+      setSelectedDate(nextDate);
+    }
+    navigate(`/dia/${nextDate.getDate()}`);
+  };
 
   const dayTransactions = useMemo(() => {
     return transactions.filter(t => {
@@ -227,11 +255,27 @@ export function DayTransactions() {
        <div className="flex items-center justify-between px-5 pt-safe-header pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-20 transition-colors">
           <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-gray-800 dark:text-gray-200"><ArrowLeft className="w-5 h-5" /></button>
           
-          <div className="flex items-center gap-4">
-             <ChevronLeft className="w-5 h-5 text-gray-400 opacity-30 cursor-not-allowed" strokeWidth={2} />
-             <h1 className="text-[20px] font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{day}/{String(selectedDate.getMonth() + 1).padStart(2, '0')}</h1>
-             <ChevronRight className="w-5 h-5 text-gray-400 opacity-30 cursor-not-allowed" strokeWidth={2} />
-          </div>
+           <div className="flex items-center gap-4">
+              <button 
+                 onClick={handlePrevDay} 
+                 className="p-1.5 rounded-full hover:bg-gray-150 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 transition-colors cursor-pointer"
+                 title="Dia anterior"
+              >
+                 <ChevronLeft className="w-5 h-5 text-gray-800 dark:text-gray-200" strokeWidth={2.5} />
+              </button>
+              
+              <h1 className="text-[20px] font-semibold text-gray-900 dark:text-gray-100 tracking-tight select-none">
+                 {day}/{String(selectedDate.getMonth() + 1).padStart(2, '0')}
+              </h1>
+              
+              <button 
+                 onClick={handleNextDay} 
+                 className="p-1.5 rounded-full hover:bg-gray-150 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 transition-colors cursor-pointer"
+                 title="Próximo dia"
+              >
+                 <ChevronRight className="w-5 h-5 text-gray-800 dark:text-gray-200" strokeWidth={2.5} />
+              </button>
+           </div>
 
           <button 
              type="button"

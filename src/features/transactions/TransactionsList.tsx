@@ -1,9 +1,10 @@
 import React from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus, ArrowDownUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '../../lib/utils';
+import { cn, getTagStyle } from '../../lib/utils';
 import { CATEGORY_COLORS } from '../../types';
 import { useTransactions } from '../../context/TransactionContext';
+import { useFinanceStore } from '../../store/useFinanceStore';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ChevronDown } from 'lucide-react';
@@ -15,6 +16,7 @@ function formatCurrency(v: number) {
 export function TransactionsList() {
   const navigate = useNavigate();
   const { transactions } = useTransactions();
+  const customTags = useFinanceStore((state) => state.customTags);
 
   return (
     <div className="flex flex-col min-h-full bg-[#f6f9fc] dark:bg-[#141D23] pb-12 transition-colors text-gray-900 dark:text-gray-100">
@@ -68,11 +70,20 @@ export function TransactionsList() {
                         <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100 tracking-tight mb-0.5">{t.description}</p>
                         {t.tags && t.tags.length > 0 && (
                            <div className="flex flex-wrap gap-1 mb-1 mt-0.5">
-                              {t.tags.map((tg, idx) => (
-                                 <span key={idx} className="bg-orange-50 dark:bg-orange-950/20 text-[#FF5722] text-[10px] font-extrabold px-1.5 py-0.5 rounded border border-orange-100 dark:border-orange-900/30">
-                                    {tg}
-                                 </span>
-                              ))}
+                              {t.tags.map((tg, idx) => {
+                                 const tagStyle = getTagStyle(tg, customTags);
+                                 return (
+                                    <span key={idx} className={cn(
+                                       "text-[10px] font-extrabold px-1.5 py-0.5 rounded border flex items-center gap-1 transition-colors",
+                                       tagStyle.bgClass,
+                                       tagStyle.textClass,
+                                       tagStyle.borderClass
+                                    )}>
+                                       <span>{tagStyle.icon}</span>
+                                       <span>{tg}</span>
+                                    </span>
+                                 );
+                              })}
                            </div>
                         )}
                         <p className="text-[13px] text-gray-500 dark:text-gray-400 font-medium">{formattedDate}</p>
