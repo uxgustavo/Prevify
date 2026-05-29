@@ -13,9 +13,9 @@ export default defineConfig(({mode}) => {
       VitePWA({
         registerType: 'autoUpdate',
         manifest: {
-          name: 'Finanças App',
-          short_name: 'Finanças',
-          description: 'Controle Financeiro Pessoal',
+          name: 'Prevify App',
+          short_name: 'Prevify',
+          description: 'Prevify - Controle Financeiro Pessoal',
           theme_color: '#f9fafb',
           background_color: '#f9fafb',
           display: 'standalone',
