@@ -139,6 +139,8 @@ export function DayTransactions() {
 
   // States for the edit modal
   const [editingTx, setEditingTx] = useState<any | null>(null);
+  const [showEditRecurrenceConfirm, setShowEditRecurrenceConfirm] = useState(false);
+  const [pendingUpdateData, setPendingUpdateData] = useState<any | null>(null);
   const [editAmount, setEditAmount] = useState<string>('0'); // stored as cents string
   const [editDesc, setEditDesc] = useState<string>('');
   const [editType, setEditType] = useState<string>('SAIDA');
@@ -594,17 +596,25 @@ export function DayTransactions() {
                           <button 
                             type="button"
                             onClick={() => {
-                               const finalAmt = parseInt(editAmount || '0') / 100;
-                               if (isNaN(finalAmt) || finalAmt <= 0) return;
-                               updateTransaction(editingTx.id, {
-                                  description: editDesc || (editType === 'SAIDA' ? 'Saída' : editType === 'ENTRADA' ? 'Entrada' : editType === 'DIARIO' ? 'Diário' : editType === 'CARTAO' ? 'Cartão' : 'Economia'),
-                                  amount: finalAmt,
-                                  type: editType as any,
-                                  date: new Date(editDate + 'T12:00:00').toISOString(),
-                                  tags: editTags
-                               });
-                               setEditingTx(null);
-                            }}
+                                const finalAmt = parseInt(editAmount || '0') / 100;
+                                if (isNaN(finalAmt) || finalAmt <= 0) return;
+                                
+                                const updatedData = {
+                                   description: editDesc || (editType === 'SAIDA' ? 'Saída' : editType === 'ENTRADA' ? 'Entrada' : editType === 'DIARIO' ? 'Diário' : editType === 'CARTAO' ? 'Cartão' : 'Economia'),
+                                   amount: finalAmt,
+                                   type: editType as any,
+                                   date: new Date(editDate + 'T12:00:00').toISOString(),
+                                   tags: editTags
+                                };
+
+                                if (editingTx.recurrenceId && editingTx.isRecurrenceRoot) {
+                                   setPendingUpdateData(updatedData);
+                                   setShowEditRecurrenceConfirm(true);
+                                } else {
+                                   updateTransaction(editingTx.id, updatedData);
+                                   setEditingTx(null);
+                                }
+                             }}
                             className={cn(
                               "flex-[2] py-4 rounded-xl font-extrabold text-[16px] shadow-sm transition-all active:scale-[0.98] outline-none cursor-pointer text-center",
                               editType === 'SAIDA' ? 'bg-[#b6152e] hover:bg-[#92001f] dark:bg-[#e02641] dark:hover:bg-[#a6132a] text-white' :
@@ -621,6 +631,77 @@ export function DayTransactions() {
               </>
            )}
         </AnimatePresence>
+
+         {/* Edit recurrence confirmation dialog overlay */}
+         <AnimatePresence>
+            {showEditRecurrenceConfirm && (
+               <div className="fixed inset-0 z-[60] flex items-center justify-center p-5">
+                  <motion.div
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 0.4 }}
+                     exit={{ opacity: 0 }}
+                     onClick={() => setShowEditRecurrenceConfirm(false)}
+                     className="fixed inset-0 bg-[#141D23]"
+                  />
+                  
+                  <motion.div
+                     initial={{ scale: 0.9, opacity: 0 }}
+                     animate={{ scale: 1, opacity: 1 }}
+                     exit={{ scale: 0.9, opacity: 0 }}
+                     className="relative bg-white dark:bg-[#1C262E] rounded-3xl p-6 w-full max-w-sm z-50 shadow-2xl text-center space-y-4 border border-gray-150 dark:border-gray-800"
+                  >
+                     <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-950/30 text-[#FF5722] flex items-center justify-center mx-auto">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="animate-pulse"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                     </div>
+                     <div className="space-y-1">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 tracking-tight">Atualizar Repetições?</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium px-2 leading-relaxed">
+                           Este lançamento possui repetições mensais configuradas. Deseja aplicar as alterações a todos os lançamentos futuros desta série?
+                        </p>
+                     </div>
+                     <div className="flex flex-col gap-2 pt-2">
+                        <button
+                           type="button"
+                           onClick={() => {
+                              if (pendingUpdateData && editingTx) {
+                                 updateTransaction(editingTx.id, pendingUpdateData, true);
+                                 setPendingUpdateData(null);
+                                 setShowEditRecurrenceConfirm(false);
+                                 setEditingTx(null);
+                              }
+                           }}
+                           className="w-full bg-[#FF5722] hover:bg-[#eb4b18] text-white text-xs font-bold py-3.5 rounded-xl transition-all cursor-pointer shadow-sm text-center uppercase tracking-wide"
+                        >
+                           Aplicar a todas as repetições
+                        </button>
+                        <button
+                           type="button"
+                           onClick={() => {
+                              if (pendingUpdateData && editingTx) {
+                                 updateTransaction(editingTx.id, pendingUpdateData, false);
+                                 setPendingUpdateData(null);
+                                 setShowEditRecurrenceConfirm(false);
+                                 setEditingTx(null);
+                              }
+                           }}
+                           className="w-full bg-gray-150 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold py-3 rounded-xl transition-all cursor-pointer text-center"
+                        >
+                           Apenas este lançamento
+                        </button>
+                        <button
+                           type="button"
+                           onClick={() => {
+                              setShowEditRecurrenceConfirm(false);
+                           }}
+                           className="w-full bg-transparent text-gray-400 hover:text-gray-650 dark:text-gray-500 dark:hover:text-gray-400 text-[11px] font-bold py-1.5 transition-all cursor-pointer text-center uppercase tracking-wide"
+                        >
+                           Voltar ao formulário
+                        </button>
+                     </div>
+                  </motion.div>
+               </div>
+            )}
+         </AnimatePresence>
 
          {/* Contextual Quick Entry AddTransactionModal with presets */}
          <AddTransactionModal 

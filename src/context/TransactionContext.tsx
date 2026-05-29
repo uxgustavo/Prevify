@@ -10,7 +10,7 @@ interface TransactionContextData {
   todayBalance: number;
   addTransaction: (tx: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
-  updateTransaction: (id: string, updated: Partial<Transaction>) => void;
+  updateTransaction: (id: string, updated: Partial<Transaction>, updateAllRecurrences?: boolean) => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
 }

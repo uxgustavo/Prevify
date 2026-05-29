@@ -28,7 +28,7 @@ interface FinanceState {
   setPrimaryColor: (color: string) => void;
   addTransaction: (tx: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
-  updateTransaction: (id: string, updated: Partial<Transaction>) => void;
+  updateTransaction: (id: string, updated: Partial<Transaction>, updateAllRecurrences?: boolean) => void;
   setSelectedDate: (date: Date) => void;
   setCurrentBalance: (balance: number) => void;
   setTransactions: (txs: Transaction[]) => void;
@@ -294,61 +294,15 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     };
   }),
 
-  updateTransaction: (id, updated) => set((state) => {
+  updateTransaction: (id, updated, updateAllRecurrences) => set((state) => {
     const oldTx = state.transactions.find((t) => t.id === id);
     if (!oldTx) return { transactions: state.transactions };
 
-    const newTx: Transaction = {
-      ...oldTx,
-      ...updated,
-    } as Transaction;
-
-    // For CARTAO transactions, automatically offset date to the invoice due date
-    if (newTx.type === 'CARTAO') {
-      const datePart = newTx.date.split('T')[0];
-      const [yearStr, monthStr, dayStr] = datePart.split('-');
-      const year = parseInt(yearStr);
-      const month = parseInt(monthStr);
-      const day = parseInt(dayStr);
-
-      let dueYear = year;
-      let dueMonth = month;
-
-      if (day <= 20) {
-        dueMonth = month;
-      } else {
-        dueMonth = month + 1;
-        if (dueMonth > 12) {
-          dueMonth = 1;
-          dueYear = year + 1;
-        }
-      }
-
-      newTx.purchaseDate = newTx.date;
-      newTx.date = `${dueYear}-${String(dueMonth).padStart(2, '0')}-20T12:00:00.000Z`;
-    } else {
-      newTx.purchaseDate = undefined;
-    }
-
-    let tempBalance = state.currentBalance;
-    // Rollback original transaction effect
-    if (oldTx.type === 'ENTRADA') {
-      tempBalance -= oldTx.amount;
-    } else if (oldTx.type === 'SAIDA' || oldTx.type === 'DIARIO' || oldTx.type === 'ECONOMIA') {
-      tempBalance += oldTx.amount;
-    }
-
-    // Apply updated transaction effect
-    if (newTx.type === 'ENTRADA') {
-      tempBalance += newTx.amount;
-    } else if (newTx.type === 'SAIDA' || newTx.type === 'DIARIO' || newTx.type === 'ECONOMIA') {
-      tempBalance -= newTx.amount;
-    }
-
     // Sync any new tags directly to state custom list if editing added tags
     const updatedCustomTags = [...state.customTags];
-    if (newTx.tags) {
-      newTx.tags.forEach(tName => {
+    const tagsToCheck = updated.tags || oldTx.tags;
+    if (tagsToCheck) {
+      tagsToCheck.forEach(tName => {
         if (!updatedCustomTags.some(t => t.name.toLowerCase() === tName.toLowerCase())) {
           updatedCustomTags.push({
             name: tName,
@@ -359,8 +313,119 @@ export const useFinanceStore = create<FinanceState>((set) => ({
       });
     }
 
-    const nextTransactions = state.transactions.map((t) => t.id === id ? newTx : t);
-    const nextBalance = tempBalance;
+    let nextTransactions = [...state.transactions];
+    let nextBalance = state.currentBalance;
+
+    if (updateAllRecurrences && oldTx.recurrenceId && oldTx.isRecurrenceRoot) {
+      let totalBalanceDelta = 0;
+      nextTransactions = state.transactions.map((t) => {
+        if (t.recurrenceId === oldTx.recurrenceId) {
+          // 1. Rollback old amount from balance
+          if (t.type === 'ENTRADA') {
+            totalBalanceDelta -= t.amount;
+          } else if (t.type === 'SAIDA' || t.type === 'DIARIO' || t.type === 'ECONOMIA') {
+            totalBalanceDelta += t.amount;
+          }
+
+          // 2. Prepare updated transaction instance
+          const updatedTx: Transaction = {
+            ...t,
+            description: updated.description !== undefined ? updated.description : t.description,
+            amount: updated.amount !== undefined ? updated.amount : t.amount,
+            type: updated.type !== undefined ? updated.type : t.type,
+            tags: updated.tags !== undefined ? updated.tags : t.tags,
+          };
+
+          // Adjust date day if the root day was changed
+          if (updated.date) {
+            const newRootDate = new Date(updated.date);
+            const currentChildDate = new Date(t.date);
+            currentChildDate.setDate(newRootDate.getDate());
+            updatedTx.date = currentChildDate.toISOString();
+          }
+
+          // Cartão offsets
+          if (updatedTx.type === 'CARTAO') {
+            const datePart = updatedTx.date.split('T')[0];
+            const [yearStr, monthStr, dayStr] = datePart.split('-');
+            const year = parseInt(yearStr);
+            const month = parseInt(monthStr);
+            const day = parseInt(dayStr);
+            let dueYear = year;
+            let dueMonth = month;
+            if (day <= 20) {
+              dueMonth = month;
+            } else {
+              dueMonth = month + 1;
+              if (dueMonth > 12) {
+                dueMonth = 1;
+                dueYear = year + 1;
+              }
+            }
+            updatedTx.purchaseDate = updatedTx.date;
+            updatedTx.date = `${dueYear}-${String(dueMonth).padStart(2, '0')}-20T12:00:00.000Z`;
+          } else {
+            updatedTx.purchaseDate = undefined;
+          }
+
+          // 3. Apply new amount to balance
+          if (updatedTx.type === 'ENTRADA') {
+            totalBalanceDelta += updatedTx.amount;
+          } else if (updatedTx.type === 'SAIDA' || updatedTx.type === 'DIARIO' || updatedTx.type === 'ECONOMIA') {
+            totalBalanceDelta -= updatedTx.amount;
+          }
+
+          return updatedTx;
+        }
+        return t;
+      });
+      nextBalance += totalBalanceDelta;
+    } else {
+      // Single transaction update
+      const newTx: Transaction = {
+        ...oldTx,
+        ...updated,
+      } as Transaction;
+
+      if (newTx.type === 'CARTAO') {
+        const datePart = newTx.date.split('T')[0];
+        const [yearStr, monthStr, dayStr] = datePart.split('-');
+        const year = parseInt(yearStr);
+        const month = parseInt(monthStr);
+        const day = parseInt(dayStr);
+        let dueYear = year;
+        let dueMonth = month;
+        if (day <= 20) {
+          dueMonth = month;
+        } else {
+          dueMonth = month + 1;
+          if (dueMonth > 12) {
+            dueMonth = 1;
+            dueYear = year + 1;
+          }
+        }
+        newTx.purchaseDate = newTx.date;
+        newTx.date = `${dueYear}-${String(dueMonth).padStart(2, '0')}-20T12:00:00.000Z`;
+      } else {
+        newTx.purchaseDate = undefined;
+      }
+
+      // Rollback
+      if (oldTx.type === 'ENTRADA') {
+        nextBalance -= oldTx.amount;
+      } else if (oldTx.type === 'SAIDA' || oldTx.type === 'DIARIO' || oldTx.type === 'ECONOMIA') {
+        nextBalance += oldTx.amount;
+      }
+
+      // Apply
+      if (newTx.type === 'ENTRADA') {
+        nextBalance += newTx.amount;
+      } else if (newTx.type === 'SAIDA' || newTx.type === 'DIARIO' || newTx.type === 'ECONOMIA') {
+        nextBalance -= newTx.amount;
+      }
+
+      nextTransactions = state.transactions.map((t) => t.id === id ? newTx : t);
+    }
 
     saveUserData(state.currentUser.email, nextTransactions, nextBalance, updatedCustomTags);
 
