@@ -137,6 +137,7 @@ export function DayTransactions() {
   const [newTagText, setNewTagText] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const editFormScrollRef = useRef<HTMLDivElement>(null);
 
   // Use the year and month coordinates from context
   const targetDate = useMemo(() => {
@@ -189,6 +190,9 @@ export function DayTransactions() {
   useEffect(() => {
      if (editingTx) {
         window.scrollTo(0, 0);
+        if (editFormScrollRef.current) {
+           editFormScrollRef.current.scrollTop = 0;
+        }
         // Convert the float amount to cents string representation
         const centsStr = Math.round(editingTx.amount * 100).toString();
         setEditAmount(centsStr);
@@ -198,11 +202,6 @@ export function DayTransactions() {
         setEditTags(editingTx.tags || []);
         setShowTagInput(false);
         setNewTagText('');
-        
-        // Delay focus slightly to ensure input element is mounted and animated
-        setTimeout(() => {
-           editInputRef.current?.focus();
-        }, 50);
      }
   }, [editingTx]);
 
@@ -378,13 +377,12 @@ export function DayTransactions() {
                                  }
                               }}
                               className="text-[40px] font-bold tracking-tight leading-none bg-transparent border-none outline-none focus:outline-none focus:ring-0 p-0 m-0 w-48 text-gray-950 dark:text-gray-100 text-center select-all"
-                              autoFocus
                            />
                         </div>
                     </div>
 
                     {/* Form Fields Area (Scrollable Layer) */}
-                    <div className="flex-grow bg-white dark:bg-[#141D23] px-6 pt-5 pb-4 space-y-5 overflow-y-auto no-scrollbar transition-colors">
+                    <div ref={editFormScrollRef} className="flex-grow bg-white dark:bg-[#141D23] px-6 pt-5 pb-4 space-y-5 overflow-y-auto no-scrollbar transition-colors">
                        
                        {/* Type Toggle/Indicator */}
                        <div 

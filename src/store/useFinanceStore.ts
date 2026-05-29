@@ -5,7 +5,8 @@ import {
   isSupabaseConfigured, 
   registerUserInSupabase, 
   loadUserDataFromSupabase, 
-  saveUserDataToSupabase 
+  saveUserDataToSupabase,
+  getUserFromSupabase
 } from '../lib/supabase';
 
 export interface CustomTag {
@@ -33,7 +34,7 @@ interface FinanceState {
   setTransactions: (txs: Transaction[]) => void;
   addCustomTag: (tag: CustomTag) => void;
   deleteCustomTag: (name: string) => void;
-  loginUser: (email: string, pass: string) => { success: boolean; message: string };
+  loginUser: (email: string, pass: string) => Promise<{ success: boolean; message: string }>;
   registerUser: (name: string, email: string, pass: string) => { success: boolean; message: string };
   changePassword: (oldPass: string, newPass: string) => { success: boolean; message: string };
   updateUserProfile: (name: string, email: string) => void;
@@ -386,16 +387,47 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     saveUserData(state.currentUser.email, state.transactions, state.currentBalance, nextTags);
     return { customTags: nextTags };
   }),
-  loginUser: (email, pass) => {
-    const usersStr = localStorage.getItem('appUsers') || '[]';
-    const users = JSON.parse(usersStr);
-    const user = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+  loginUser: async (email, pass) => {
+    const cleanEmail = email.toLowerCase();
+    
+    // Check if we can find user in Supabase first (source of truth)
+    let user: any = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const dbUser = await getUserFromSupabase(cleanEmail);
+        if (dbUser) {
+          user = { name: dbUser.name, email: dbUser.email, password: dbUser.password };
+          
+          // Sync/update local appUsers list
+          const usersStr = localStorage.getItem('appUsers') || '[]';
+          const localUsers = JSON.parse(usersStr);
+          const localIdx = localUsers.findIndex((u: any) => u.email.toLowerCase() === cleanEmail);
+          if (localIdx !== -1) {
+            localUsers[localIdx] = user;
+          } else {
+            localUsers.push(user);
+          }
+          localStorage.setItem('appUsers', JSON.stringify(localUsers));
+        }
+      } catch (e) {
+        console.warn('Could not verify user with Supabase (using local fallback):', e);
+      }
+    }
+    
+    // Fallback to local storage if offline or not found in Supabase
+    if (!user) {
+      const usersStr = localStorage.getItem('appUsers') || '[]';
+      const localUsers = JSON.parse(usersStr);
+      user = localUsers.find((u: any) => u.email.toLowerCase() === cleanEmail);
+    }
+    
     if (!user) {
       return { success: false, message: 'Usuário não encontrado.' };
     }
     if (user.password !== pass) {
       return { success: false, message: 'Senha incorreta.' };
     }
+    
     const update = { name: user.name, email: user.email };
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('sessionExpiry', String(Date.now() + 2 * 60 * 60 * 1000)); // 2h expiry
@@ -407,10 +439,6 @@ export const useFinanceStore = create<FinanceState>((set) => ({
     const loadedBal = getInitialBalance(user.email);
     const loadedTags = getInitialCustomTags(user.email);
 
-    // Trigger sync in background: if dirty it uploads, if clean it downloads
-    syncUserData(user.email).catch(() => {});
-    syncUnsyncedUsers().catch(() => {});
-
     set({ 
       isLoggedIn: true, 
       currentUser: update,
@@ -418,6 +446,11 @@ export const useFinanceStore = create<FinanceState>((set) => ({
       currentBalance: loadedBal,
       customTags: loadedTags
     });
+
+    // Await synchronization to guarantee that database transactions are fetched/restored before transitioning
+    await syncUnsyncedUsers().catch(() => {});
+    await syncUserData(user.email).catch(() => {});
+
     return { success: true, message: 'Login realizado com sucesso!' };
   },
   registerUser: (name, email, pass) => {

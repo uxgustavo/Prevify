@@ -168,3 +168,24 @@ export async function saveUserDataToSupabase(
     return false;
   }
 }
+
+/**
+ * Fetches user registration details from Supabase app_users table.
+ */
+export async function getUserFromSupabase(email: string) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+  try {
+    const cleanEmail = email.toLowerCase();
+    const { data, error } = await supabase
+      .from('app_users')
+      .select('*')
+      .eq('email', cleanEmail)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch user from Supabase:', error);
+    return null;
+  }
+}

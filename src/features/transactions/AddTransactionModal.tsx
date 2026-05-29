@@ -38,6 +38,7 @@ export function AddTransactionModal({
 
   const [isMobile, setIsMobile] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const formScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -51,6 +52,9 @@ export function AddTransactionModal({
   useEffect(() => {
     if (isOpen) {
       window.scrollTo(0, 0);
+      if (formScrollRef.current) {
+        formScrollRef.current.scrollTop = 0;
+      }
       setType(initialCategory || initialType);
       setAmount('0');
       setDescription('');
@@ -60,11 +64,6 @@ export function AddTransactionModal({
       setSelectedTags([]);
       setShowTagInput(false);
       setNewTagText('');
-      
-      // Delay focus slightly to ensure input element is mounted and animated
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
     }
   }, [isOpen, initialType, initialCategory, initialDate]);
 
@@ -162,13 +161,12 @@ export function AddTransactionModal({
                     }
                   }}
                   className="text-[40px] font-bold tracking-tight leading-none bg-transparent border-none outline-none focus:outline-none focus:ring-0 p-0 m-0 w-48 text-gray-950 dark:text-gray-100 text-center select-all"
-                  autoFocus
                 />
               </div>
             </div>
 
             {/* Form Fields Area (Scrollable Layer) */}
-            <div className="flex-grow bg-white dark:bg-[#141D23] px-6 pt-5 pb-4 space-y-5 overflow-y-auto no-scrollbar transition-colors">
+            <div ref={formScrollRef} className="flex-grow bg-white dark:bg-[#141D23] px-6 pt-5 pb-4 space-y-5 overflow-y-auto no-scrollbar transition-colors">
               
               {/* Type Toggle/Indicator */}
               <div 

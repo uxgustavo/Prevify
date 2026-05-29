@@ -37,13 +37,18 @@ export function AuthPage() {
     setLoading(true);
 
     // Simulate thin server-side delay for feedback
-    setTimeout(() => {
+    setTimeout(async () => {
       if (isLogin) {
-        const res = loginUser(email, password);
-        if (res.success) {
-          setSuccess(res.message);
-        } else {
-          setError(res.message);
+        try {
+          const res = await loginUser(email, password);
+          if (res.success) {
+            setSuccess(res.message);
+          } else {
+            setError(res.message);
+            setLoading(false);
+          }
+        } catch (e) {
+          setError('Erro de autenticação no banco.');
           setLoading(false);
         }
       } else {

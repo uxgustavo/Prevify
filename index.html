@@ -7,6 +7,55 @@
   <title>Prevify</title>
   <link rel="icon" type="image/png" href="/logo-Prevify.png" />
   <link rel="apple-touch-icon" href="/logo-Prevify.png" />
+  <script>
+    (function() {
+      var primaryColor = localStorage.getItem('primaryColor') || 'violet';
+      var theme = {
+        orange: { hex: '#FF5722', hover: '#E64A19', light: 'rgba(255, 87, 34, 0.08)', lightBorder: 'rgba(255, 87, 34, 0.2)' },
+        emerald: { hex: '#10B981', hover: '#059669', light: 'rgba(16, 185, 129, 0.08)', lightBorder: 'rgba(16, 185, 129, 0.2)' },
+        blue: { hex: '#3B82F6', hover: '#2563EB', light: 'rgba(59, 130, 246, 0.08)', lightBorder: 'rgba(59, 130, 246, 0.2)' },
+        violet: { hex: '#8B5CF6', hover: '#7C3AED', light: 'rgba(139, 92, 246, 0.08)', lightBorder: 'rgba(139, 92, 246, 0.2)' },
+        crimson: { hex: '#F43F5E', hover: '#E11D48', light: 'rgba(244, 63, 94, 0.08)', lightBorder: 'rgba(244, 63, 94, 0.2)' }
+      }[primaryColor] || { hex: '#8B5CF6', hover: '#7C3AED', light: 'rgba(139, 92, 246, 0.08)', lightBorder: 'rgba(139, 92, 246, 0.2)' };
+      
+      var styleTag = document.createElement('style');
+      styleTag.id = 'theme-style-override';
+      styleTag.innerHTML = `
+        :root {
+          --primary-color: ${theme.hex};
+          --primary-hover: ${theme.hover};
+          --primary-light: ${theme.light};
+          --primary-light-border: ${theme.lightBorder};
+        }
+        .text-\\[\\#FF5722\\], .text-\\[\\#F15A2B\\] { color: ${theme.hex} !important; }
+        .bg-\\[\\#FF5722\\], .bg-\\[\\#F15A2B\\] { background-color: ${theme.hex} !important; }
+        .border-\\[\\#FF5722\\], .border-\\[\\#F15A2B\\] { border-color: ${theme.hex} !important; }
+        .hover\\:bg-\\[\\#eb4b18\\]:hover, .hover\\:bg-\\[\\#E64A19\\]:hover, .hover\\:bg-\\[\\#FF5722\\]:hover {
+          background-color: ${theme.hover} !important;
+        }
+        .bg-orange-50 { background-color: ${theme.light} !important; }
+        .dark .dark\\:bg-orange-950\\/10 { background-color: ${theme.light} !important; }
+        .border-orange-100 { border-color: ${theme.lightBorder} !important; }
+        .dark .dark\\:border-orange-900\\/30 { border-color: ${theme.lightBorder} !important; }
+        .hover\\:border-\\[\\#FF5722\\]:hover { border-color: ${theme.hex} !important; }
+        .hover\\:text-\\[\\#FF5722\\]:hover { color: ${theme.hex} !important; }
+        .text-orange-100 { color: ${theme.lightBorder} !important; }
+        .bg-orange-100 { background-color: ${theme.light} !important; }
+        .focus\\:ring-\\[\\#FF5722\\]:focus { --tw-ring-color: ${theme.hex} !important; }
+        .focus\\:border-\\[\\#FF5722\\]:focus { border-color: ${theme.hex} !important; }
+        .text-\\[\\#F15A2B\\] { color: ${theme.hex} !important; }
+        .bg-\\[\\#F15A2B\\] { background-color: ${theme.hex} !important; }
+      `;
+      document.head.appendChild(styleTag);
+      
+      var darkMode = localStorage.getItem('theme') === 'dark';
+      if (darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
 </head>
 
 <body>
