@@ -29,7 +29,6 @@ export interface TagStyle {
   textClass: string;
   borderClass: string;
   icon: string;
-  selectedClass: string;
 }
 
 export function getTagStyle(tagName: string, customTags: { name: string; color: string; icon: string }[]): TagStyle {
@@ -44,48 +43,39 @@ export function getTagStyle(tagName: string, customTags: { name: string; color: 
   let bgClass = bg;
   let textClass = 'text-slate-700 dark:text-slate-300';
   let borderClass = 'border-slate-200/50 dark:border-slate-800/40';
-  let selectedClass = 'bg-slate-500 border-slate-500 text-white dark:bg-slate-600 dark:border-slate-600';
 
   if (bg.includes('orange')) {
     bgClass = 'bg-orange-50/80 dark:bg-orange-950/15';
     textClass = 'text-[#FF5722] dark:text-[#ff784e]';
     borderClass = 'border-orange-100/60 dark:border-orange-900/30';
-    selectedClass = 'bg-orange-600 border-orange-600 text-white dark:bg-orange-500 dark:border-orange-500';
   } else if (bg.includes('yellow')) {
     bgClass = 'bg-yellow-50/80 dark:bg-yellow-950/15';
     textClass = 'text-yellow-700 dark:text-yellow-400';
     borderClass = 'border-yellow-100/60 dark:border-yellow-900/30';
-    selectedClass = 'bg-yellow-500 border-yellow-500 text-gray-900 dark:bg-yellow-400 dark:border-yellow-400';
   } else if (bg.includes('pink')) {
     bgClass = 'bg-pink-50/80 dark:bg-pink-950/15';
     textClass = 'text-pink-600 dark:text-pink-400';
     borderClass = 'border-pink-100/60 dark:border-pink-900/30';
-    selectedClass = 'bg-pink-650 border-pink-650 text-white dark:bg-pink-500 dark:border-pink-500';
   } else if (bg.includes('purple')) {
     bgClass = 'bg-purple-50/80 dark:bg-purple-950/15';
     textClass = 'text-purple-600 dark:text-purple-450';
     borderClass = 'border-purple-100/60 dark:border-purple-900/30';
-    selectedClass = 'bg-purple-600 border-purple-600 text-white dark:bg-purple-500 dark:border-purple-500';
   } else if (bg.includes('emerald')) {
     bgClass = 'bg-emerald-50/80 dark:bg-emerald-950/15';
     textClass = 'text-emerald-700 dark:text-emerald-400';
     borderClass = 'border-emerald-100/60 dark:border-emerald-900/30';
-    selectedClass = 'bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500';
   } else if (bg.includes('blue')) {
     bgClass = 'bg-blue-50/80 dark:bg-blue-950/15';
     textClass = 'text-blue-600 dark:text-blue-400';
     borderClass = 'border-blue-100/60 dark:border-blue-900/30';
-    selectedClass = 'bg-blue-600 border-blue-600 text-white dark:bg-blue-500 dark:border-blue-500';
   } else if (bg.includes('rose')) {
     bgClass = 'bg-rose-50/80 dark:bg-rose-950/15';
-    textClass = 'text-rose-600 dark:text-rose-455';
+    textClass = 'text-rose-600 dark:text-rose-450';
     borderClass = 'border-rose-100/60 dark:border-rose-900/30';
-    selectedClass = 'bg-rose-600 border-rose-600 text-white dark:bg-rose-500 dark:border-rose-500';
   } else if (bg.includes('slate')) {
     bgClass = 'bg-slate-50/80 dark:bg-slate-900/30';
     textClass = 'text-slate-600 dark:text-slate-400';
     borderClass = 'border-slate-100/60 dark:border-slate-800/40';
-    selectedClass = 'bg-slate-600 border-slate-600 text-white dark:bg-slate-500 dark:border-slate-500';
   }
 
   return {
@@ -93,6 +83,5 @@ export function getTagStyle(tagName: string, customTags: { name: string; color: 
     textClass,
     borderClass,
     icon,
-    selectedClass,
   };
 }

@@ -253,7 +253,7 @@ export function DayTransactions() {
     <div className="flex flex-col min-h-full bg-white dark:bg-[#141D23] pb-24 text-gray-900 dark:text-gray-100 transition-colors">
        {/* Header */}
        <div className="flex items-center justify-between px-5 pt-safe-header pb-4 bg-white dark:bg-[#141D23] sticky top-0 z-20 transition-colors">
-          <button onClick={() => navigate('/')} className="p-1 -ml-1 text-gray-800 dark:text-gray-200"><ArrowLeft className="w-5 h-5" /></button>
+          <button onClick={() => navigate(-1)} className="p-1 -ml-1 text-gray-800 dark:text-gray-200"><ArrowLeft className="w-5 h-5" /></button>
           
            <div className="flex items-center gap-4">
               <button 
@@ -537,7 +537,6 @@ export function DayTransactions() {
                           <div className="flex flex-wrap gap-1.5 pt-1">
                              {customTags.map((tag) => {
                                const isSelected = editTags.includes(tag.name);
-                               const tagStyle = getTagStyle(tag.name, customTags);
                                return (
                                  <button
                                    key={tag.name}
@@ -552,7 +551,7 @@ export function DayTransactions() {
                                    className={cn(
                                      "text-xs font-bold px-2.5 py-1 rounded-full transition-all border flex items-center gap-1",
                                      isSelected 
-                                       ? tagStyle.selectedClass 
+                                       ? "bg-[#FF5722] border-[#FF5722] text-white" 
                                        : "bg-[#F8FAFC] dark:bg-[#1C262E] border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-700"
                                    )}
                                  >
@@ -563,16 +562,12 @@ export function DayTransactions() {
                              })}
                              {editTags.map((tag) => {
                                if (customTags.some((ct) => ct.name === tag)) return null;
-                               const tagStyle = getTagStyle(tag, customTags);
                                return (
                                  <button
                                    key={tag}
                                    type="button"
                                    onClick={() => setEditTags(editTags.filter(t => t !== tag))}
-                                   className={cn(
-                                     "text-xs font-bold px-2.5 py-1 rounded-full transition-all border flex items-center gap-1",
-                                     tagStyle.selectedClass
-                                   )}
+                                   className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#FF5722] border-[#FF5722] text-white transition-all border"
                                  >
                                    {tag} ×
                                  </button>
