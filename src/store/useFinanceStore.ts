@@ -195,30 +195,7 @@ export const useFinanceStore = create<FinanceState>((set) => ({
       id: uuidv4(),
     };
     
-    // For CARTAO transactions, automatically offset date to the invoice due date
-    if (newTx.type === 'CARTAO') {
-      const datePart = newTx.date.split('T')[0];
-      const [yearStr, monthStr, dayStr] = datePart.split('-');
-      const year = parseInt(yearStr);
-      const month = parseInt(monthStr);
-      const day = parseInt(dayStr);
-
-      let dueYear = year;
-      let dueMonth = month;
-
-      if (day <= 20) {
-        dueMonth = month;
-      } else {
-        dueMonth = month + 1;
-        if (dueMonth > 12) {
-          dueMonth = 1;
-          dueYear = year + 1;
-        }
-      }
-
-      newTx.purchaseDate = newTx.date;
-      newTx.date = `${dueYear}-${String(dueMonth).padStart(2, '0')}-20T12:00:00.000Z`;
-    }
+    // No date offsetting for CARTAO transactions
     
     // Motor de Regras dos 5 Pilares para atualizar o saldo em conta corrente na hora:
     let balanceDelta = 0;
@@ -344,29 +321,7 @@ export const useFinanceStore = create<FinanceState>((set) => ({
             updatedTx.date = currentChildDate.toISOString();
           }
 
-          // Cartão offsets
-          if (updatedTx.type === 'CARTAO') {
-            const datePart = updatedTx.date.split('T')[0];
-            const [yearStr, monthStr, dayStr] = datePart.split('-');
-            const year = parseInt(yearStr);
-            const month = parseInt(monthStr);
-            const day = parseInt(dayStr);
-            let dueYear = year;
-            let dueMonth = month;
-            if (day <= 20) {
-              dueMonth = month;
-            } else {
-              dueMonth = month + 1;
-              if (dueMonth > 12) {
-                dueMonth = 1;
-                dueYear = year + 1;
-              }
-            }
-            updatedTx.purchaseDate = updatedTx.date;
-            updatedTx.date = `${dueYear}-${String(dueMonth).padStart(2, '0')}-20T12:00:00.000Z`;
-          } else {
-            updatedTx.purchaseDate = undefined;
-          }
+          // No date offsetting for CARTAO transactions
 
           // 3. Apply new amount to balance
           if (updatedTx.type === 'ENTRADA') {
@@ -387,28 +342,7 @@ export const useFinanceStore = create<FinanceState>((set) => ({
         ...updated,
       } as Transaction;
 
-      if (newTx.type === 'CARTAO') {
-        const datePart = newTx.date.split('T')[0];
-        const [yearStr, monthStr, dayStr] = datePart.split('-');
-        const year = parseInt(yearStr);
-        const month = parseInt(monthStr);
-        const day = parseInt(dayStr);
-        let dueYear = year;
-        let dueMonth = month;
-        if (day <= 20) {
-          dueMonth = month;
-        } else {
-          dueMonth = month + 1;
-          if (dueMonth > 12) {
-            dueMonth = 1;
-            dueYear = year + 1;
-          }
-        }
-        newTx.purchaseDate = newTx.date;
-        newTx.date = `${dueYear}-${String(dueMonth).padStart(2, '0')}-20T12:00:00.000Z`;
-      } else {
-        newTx.purchaseDate = undefined;
-      }
+      // No date offsetting for CARTAO transactions
 
       // Rollback
       if (oldTx.type === 'ENTRADA') {
