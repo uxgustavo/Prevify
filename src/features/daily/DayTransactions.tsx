@@ -644,7 +644,7 @@ return (
                                 if (isNaN(finalAmt) || finalAmt <= 0) return;
                                 
                                 const updatedData = {
-                                   description: editDesc || (editType === 'SAIDA' ? 'Saída' : editType === 'ENTRADA' ? 'Entrada' : editType === 'DIARIO' ? 'Diário' : editType === 'CARTAO' ? 'Cartão' : 'Economia'),
+                                   description: editDesc.trim() || (editType === 'SAIDA' ? 'Saída' : editType === 'ENTRADA' ? 'Entrada' : editType === 'DIARIO' ? 'Diário' : editType === 'CARTAO' ? 'Cartão de Crédito' : 'Economia'),
                                    amount: finalAmt,
                                    type: editType as any,
                                    date: new Date(editDate + 'T12:00:00').toISOString(),

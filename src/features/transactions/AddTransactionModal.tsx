@@ -89,7 +89,7 @@ export function AddTransactionModal({
       addTransaction({
          type,
          amount: numAmount,
-         description: description || type,
+         description: description.trim() || (type === 'SAIDA' ? 'Saída' : type === 'ENTRADA' ? 'Entrada' : type === 'DIARIO' ? 'Diário' : type === 'CARTAO' ? 'Cartão de Crédito' : 'Economia'),
          date: instanceDate.toISOString(),
          tags: selectedTags,
          recurrenceId,
