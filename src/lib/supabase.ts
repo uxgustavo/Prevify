@@ -82,15 +82,32 @@ export async function loadUserDataFromSupabase(email: string) {
       
     return {
       balance: balData ? parseFloat(balData.balance) : null,
-      transactions: txsData ? txsData.map(t => ({
-        id: t.id,
-        type: t.type,
-        description: t.description,
-        amount: parseFloat(t.amount),
-        date: t.date,
-        purchaseDate: t.purchase_date || undefined,
-        tags: t.tags || []
-      })) : null,
+      transactions: txsData ? txsData.map(t => {
+        let recurrenceId: string | undefined = undefined;
+        let isRecurrenceRoot: boolean | undefined = undefined;
+        const cleanTags = (t.tags || []).filter((tag: string) => {
+          if (tag.startsWith('__recurrence_id__:')) {
+            recurrenceId = tag.substring('__recurrence_id__:'.length);
+            return false;
+          }
+          if (tag.startsWith('__is_recurrence_root__:')) {
+            isRecurrenceRoot = tag.substring('__is_recurrence_root__:'.length) === 'true';
+            return false;
+          }
+          return true;
+        });
+        return {
+          id: t.id,
+          type: t.type,
+          description: t.description,
+          amount: parseFloat(t.amount),
+          date: t.date,
+          purchaseDate: t.purchase_date || undefined,
+          tags: cleanTags,
+          recurrenceId,
+          isRecurrenceRoot
+        };
+      }) : null,
       customTags: tagsData ? tagsData.map(tg => ({
         name: tg.name,
         color: tg.color,
@@ -131,16 +148,25 @@ export async function saveUserDataToSupabase(
     if (delTxError) throw delTxError;
       
     if (transactions.length > 0) {
-      const rows = transactions.map(t => ({
-        id: t.id && t.id.length === 36 ? t.id : undefined, // Ensure valid UUID format or let db generate
-        user_email: cleanEmail,
-        type: t.type,
-        description: t.description,
-        amount: t.amount,
-        date: t.date,
-        purchase_date: t.purchaseDate || null,
-        tags: t.tags || []
-      }));
+      const rows = transactions.map(t => {
+        const dbTags = [...(t.tags || [])];
+        if (t.recurrenceId) {
+          dbTags.push(`__recurrence_id__:${t.recurrenceId}`);
+        }
+        if (t.isRecurrenceRoot) {
+          dbTags.push(`__is_recurrence_root__:${t.isRecurrenceRoot}`);
+        }
+        return {
+          id: t.id && t.id.length === 36 ? t.id : undefined, // Ensure valid UUID format or let db generate
+          user_email: cleanEmail,
+          type: t.type,
+          description: t.description,
+          amount: t.amount,
+          date: t.date,
+          purchase_date: t.purchaseDate || null,
+          tags: dbTags
+        };
+      });
       const { error: insTxError } = await supabase.from('transactions').insert(rows);
       if (insTxError) throw insTxError;
     }
